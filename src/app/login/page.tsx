@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 function safeNextPath(value: string | null) {
@@ -9,7 +8,6 @@ function safeNextPath(value: string | null) {
 }
 
 export default function LoginPage() {
-  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,7 +21,7 @@ export default function LoginPage() {
       const supabase = createClient();
       const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
       if (authError) throw authError;
-      window.location.assign(safeNextPath(searchParams.get("next")));
+      window.location.assign(safeNextPath(new URLSearchParams(window.location.search).get("next")));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Não foi possível entrar. Verifique suas credenciais.");
       setBusy(false);

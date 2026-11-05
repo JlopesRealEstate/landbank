@@ -1,0 +1,25 @@
+-- Security hardening and foreign-key indexes for EldoradoCorp CRM.
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
+revoke execute on function public.has_role(text) from public, anon;
+revoke execute on function public.is_admin() from public, anon;
+grant execute on function public.has_role(text) to authenticated;
+grant execute on function public.is_admin() to authenticated;
+drop policy if exists "share links owner manage" on public.share_links;
+create policy "share links select owner" on public.share_links for select to authenticated using(created_by=(select auth.uid()) or public.is_admin());
+create policy "share links insert owner" on public.share_links for insert to authenticated with check((created_by=(select auth.uid()) or public.is_admin()) and not public.has_role('reader') and expires_at>now());
+create policy "share links update owner" on public.share_links for update to authenticated using((created_by=(select auth.uid()) or public.is_admin()) and not public.has_role('reader')) with check((created_by=(select auth.uid()) or public.is_admin()) and not public.has_role('reader') and expires_at>now());
+create policy "share links delete owner" on public.share_links for delete to authenticated using((created_by=(select auth.uid()) or public.is_admin()) and not public.has_role('reader'));
+create index if not exists companies_owner_id_idx on public.companies(owner_id);
+create index if not exists contacts_owner_id_idx on public.contacts(owner_id);
+create index if not exists opportunities_company_id_idx on public.opportunities(company_id);
+create index if not exists opportunities_contact_id_idx on public.opportunities(contact_id);
+create index if not exists opportunities_property_id_idx on public.opportunities(property_id);
+create index if not exists tasks_opportunity_id_idx on public.tasks(opportunity_id);
+create index if not exists tasks_property_id_idx on public.tasks(property_id);
+create index if not exists tasks_assigned_to_idx on public.tasks(assigned_to);
+create index if not exists viability_studies_owner_id_idx on public.viability_studies(owner_id);
+create index if not exists viability_studies_property_id_idx on public.viability_studies(property_id);
+create index if not exists share_links_created_by_idx on public.share_links(created_by);
+create index if not exists share_links_property_id_idx on public.share_links(property_id);
+create index if not exists share_links_opportunity_id_idx on public.share_links(opportunity_id);
+create index if not exists audit_log_actor_id_idx on public.audit_log(actor_id);

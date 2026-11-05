@@ -12,8 +12,11 @@ export async function GET(_request: Request, { params }: Params) {
   if (!Number.isInteger(areaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
     const supabase = await createClient() as any;
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return Response.json({ ok: false, error: "Não autenticado." }, { status: 401 });
+    // Validate the signed session JWT locally. getUser() adds an Auth network
+    // round-trip and can fail independently of the valid SSR cookie session.
+    const { data: { claims }, error: authError } = await supabase.auth.getClaims();
+    const userId = typeof claims?.sub === "string" ? claims.sub : null;
+    if (authError || !userId) return Response.json({ ok: false, error: "Sessão não autenticada ou expirada. Entre novamente no CRM." }, { status: 401 });
     const { data, error } = await supabase.from("media").select("id,area_id,kind,category,name,mime_type,size,caption,external_url,sort_order,created_at").eq("area_id", areaId).order("sort_order").order("id");
     if (error) throw error;
     return Response.json({ ok: true, media: (data ?? []).map((row: { id: number; area_id: number; kind: string; category: string; name: string; mime_type: string; size: number; caption: string; external_url: string | null; sort_order: number; created_at: string }) => ({
@@ -32,8 +35,11 @@ export async function POST(request: Request, { params }: Params) {
   if (!Number.isInteger(areaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
     const supabase = await createClient() as any;
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return Response.json({ ok: false, error: "Não autenticado." }, { status: 401 });
+    // Validate the signed session JWT locally. getUser() adds an Auth network
+    // round-trip and can fail independently of the valid SSR cookie session.
+    const { data: { claims }, error: authError } = await supabase.auth.getClaims();
+    const userId = typeof claims?.sub === "string" ? claims.sub : null;
+    if (authError || !userId) return Response.json({ ok: false, error: "Sessão não autenticada ou expirada. Entre novamente no CRM." }, { status: 401 });
 
     const { data: area, error: areaError } = await supabase.from("areas").select("id,code").eq("id", areaId).maybeSingle();
     if (areaError) throw areaError;
@@ -67,7 +73,7 @@ export async function POST(request: Request, { params }: Params) {
         area_id: areaId, kind, category: typeof item.category === "string" && item.category ? item.category : kind === "photo" ? "fachada" : "outro",
         name, mime_type: mimeType, size: bytes.byteLength,
         caption: typeof item.caption === "string" ? item.caption.slice(0, 240) : "",
-        storage_path: storagePath, data: null, created_by: user.id, sort_order: 50 + inserted.length,
+        storage_path: storagePath, data: null, created_by: userId, sort_order: 50 + inserted.length,
       }).select("id").single();
       if (insertError) {
         await supabase.storage.from(BUCKET).remove([storagePath]);
@@ -79,7 +85,7 @@ export async function POST(request: Request, { params }: Params) {
 
     await supabase.from("activities").insert({
       area_id: areaId, type: "upload", title: "Novos arquivos anexados",
-      detail: `${inserted.length} arquivo(s) adicionados ao dossiê de ${area.code}.`, actor_id: user.id,
+      detail: `${inserted.length} arquivo(s) adicionados ao dossiê de ${area.code}.`, actor_id: userId,
     });
     return Response.json({ ok: true, ids: inserted }, { status: 201 });
   } catch (error) {

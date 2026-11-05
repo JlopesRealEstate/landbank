@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <radialGradient id="lbcRed" cx="15" cy="13" r="27" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fb5056"/>
+      <stop offset="0.38" stop-color="#e1121e"/>
+      <stop offset="0.78" stop-color="#bf0c17"/>
+      <stop offset="1" stop-color="#890710"/>
+    </radialGradient>
+    <linearGradient id="lbcBlue" x1="21" y1="10" x2="40" y2="37" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#66b2f5"/>
+      <stop offset="0.33" stop-color="#3f8ee1"/>
+      <stop offset="0.66" stop-color="#236ac1"/>
+      <stop offset="1" stop-color="#114084"/>
+    </linearGradient>
+    <filter id="lbcShadow" x="-30%" y="-25%" width="168%" height="175%">
+      <feDropShadow dx="0" dy="0.9" stdDeviation="1.1" flood-color="#1a1a1a" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#lbcShadow)">
+    <circle cx="21.4" cy="24" r="19.4" fill="url(#lbcRed)"/>
+
+    <g transform="skewX(-10)">
+      <path d="M20.4 10.2 H38.6 L36.5 15.4 H25.9 L24.4 20.2 H33.7 L31.7 25.2 H22.6 L21.1 29.9 H39.1 L36.9 35.1 H17.0 C16.0 26.6 17.5 17.8 20.4 10.2 Z"
+            fill="#ffffff" stroke="#ffffff" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M20.4 10.2 H38.6 L36.5 15.4 H25.9 L24.4 20.2 H33.7 L31.7 25.2 H22.6 L21.1 29.9 H39.1 L36.9 35.1 H17.0 C16.0 26.6 17.5 17.8 20.4 10.2 Z"
+            fill="url(#lbcBlue)" stroke="url(#lbcBlue)" stroke-width="1" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

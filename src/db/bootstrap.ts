@@ -567,8 +567,12 @@ const DDL = [
 let bootstrapPromise: Promise<void> | null = null;
 
 async function runBootstrap(): Promise<void> {
-  for (const statement of DDL) {
-    await db.execute(sql.raw(statement));
+  // Production schema is provisioned by versioned Supabase migrations.
+  // Do not execute runtime DDL against managed production tables on requests.
+  if (process.env.NODE_ENV !== "production") {
+    for (const statement of DDL) {
+      await db.execute(sql.raw(statement));
+    }
   }
 
   await db.insert(cities).values(

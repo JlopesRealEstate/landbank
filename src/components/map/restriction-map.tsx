@@ -62,6 +62,7 @@ export type RestrictionShape = {
 };
 
 import { RESTRICTION_COLOR, RESTRICTION_COLOR_DARK } from "@/lib/contour-colors";
+import { BASEMAPS, type BasemapId } from "@/lib/map-types";
 
 const TYPE_COLORS: Record<string, string> = {
   app: RESTRICTION_COLOR,
@@ -196,6 +197,7 @@ export function RestrictionMap({
 }) {
   const shellRef = useRef<HTMLDivElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [basemap, setBasemap] = useState<BasemapId>("satelite");
   const [resizeSignal, setResizeSignal] = useState(0);
 
   useEffect(() => {
@@ -244,9 +246,24 @@ export function RestrictionMap({
       ref={shellRef}
       className={fullscreen ? "fixed inset-0 z-[1200] flex flex-col bg-white" : "relative h-[260px] w-full"}
     >
+      <div className="absolute left-2 top-2 z-[500] flex flex-wrap gap-1 rounded-lg border border-line bg-white/95 p-1 shadow-sm">
+        {(["satelite", "mapa", "humanitario"] as BasemapId[]).map((id) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setBasemap(id)}
+            aria-pressed={basemap === id}
+            className={`rounded-md px-2.5 py-1.5 text-[10px] font-semibold transition ${
+              basemap === id ? "bg-[#1c5a6b] text-white" : "text-ink hover:bg-paper"
+            }`}
+          >
+            {BASEMAPS[id].label}
+          </button>
+        ))}
+      </div>
       <button
         type="button"
-        onClick={() => void toggleFullscreen()}
+        onClick={() => void toggleFullscreen()
         className="absolute right-2 top-2 z-[500] inline-flex items-center gap-1 rounded-md border border-line bg-white/95 px-2 py-1 text-[10px] font-medium text-ink shadow-sm hover:border-leaf hover:text-leaf-600"
         title={fullscreen ? "Sair da tela cheia" : "Expandir mapa de restrições"}
       >
@@ -262,9 +279,10 @@ export function RestrictionMap({
       >
         <MapResizer signal={resizeSignal} />
         <TileLayer
-          url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          attribution="Imagens © Esri, Maxar, Earthstar Geographics"
-          maxZoom={19}
+          key={basemap}
+          url={BASEMAPS[basemap].url}
+          attribution={BASEMAPS[basemap].attribution}
+          maxZoom={BASEMAPS[basemap].maxZoom}
         />
         <ClickCatcher
           onAdd={(point) => {

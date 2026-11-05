@@ -99,3 +99,26 @@ O arquivo `vercel.json` contém as configurações básicas de build. Não há c
 ## Publicação do código-fonte
 
 O arquivo original `FINAL_5_land-bank-and-warehouse-crm.zip` foi mantido no histórico do repositório. O workflow **Expand CRM source** extrai os 109 arquivos do pacote para a raiz do projeto e registra o código-fonte em um novo commit, sem apagar o ZIP original.
+
+
+## Supabase — EldoradoCorp CRM
+
+- Projeto: `EldoradoCorp CRM` (`bephigzcfsaltsexsimm`)
+- Região: São Paulo (sa-east-1)
+- API URL: `https://bephigzcfsaltsexsimm.supabase.co`
+- Migration: `supabase/migrations/202611050001_initial_eldoradocorp_crm.sql`
+- Auth SSR: `src/lib/supabase/client.ts`, `server.ts` e `proxy.ts`
+- Login: `/login`
+
+A migration cria perfis, papéis, empresas, contatos, imóveis/áreas, oportunidades, tarefas, estudos de viabilidade, links de compartilhamento e trilha de auditoria. As tabelas operacionais têm RLS habilitado. Usuários começam como `member`; ninguém pode se promover a administrador pelo cliente. O papel inicial de administrador deve ser atribuído manualmente pelo proprietário do projeto após criar o usuário autorizado, usando SQL Editor no Supabase:
+
+```sql
+-- Substitua pelo UUID do usuário autorizado, conferido em Authentication > Users.
+insert into public.user_roles (user_id, role)
+values ('UUID-DO-USUARIO-AUTORIZADO', 'admin')
+on conflict (user_id) do update set role = 'admin';
+```
+
+Não use service-role key no navegador ou no GitHub. Configure apenas a publishable key nas variáveis `NEXT_PUBLIC_*`; a RLS é obrigatória. Links de compartilhamento ainda não têm endpoint público de resolução e permanecem privados por padrão.
+
+**Status da integração:** banco e migration inicial aplicados; clientes Supabase SSR e tela de login adicionados ao repositório. O dashboard e os módulos legados ainda precisam ser migrados para consultar as tabelas Supabase, e o deploy/variáveis da Vercel ainda não foram configurados ou validados.

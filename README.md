@@ -79,6 +79,23 @@ Esta entrega é a publicação do código-base, não uma certificação de segur
 
 Não disponibilize dados de proprietários, negociações ou documentos sensíveis em uma instância pública sem concluir essa etapa.
 
+## Deploy na Vercel
+
+1. Importe este repositório no painel da Vercel.
+2. Configure o projeto como Next.js (detecção automática).
+3. Cadastre `DATABASE_URL` nas Environment Variables da Vercel para Production, Preview e Development.
+4. Use um PostgreSQL gerenciado com TLS e backups habilitados.
+5. Faça o primeiro deploy somente após concluir autenticação e autorização.
+6. Configure as demais chaves opcionais apenas quando os respectivos recursos forem utilizados.
+
+O arquivo `vercel.json` contém as configurações básicas de build. Não há credenciais incluídas no repositório.
+
+## Bloqueios de produção
+
+- O endpoint público `/api/seed` foi desativado em produção para impedir escrita não autenticada.
+- O CRM ainda precisa de autenticação real, autorização por perfil e proteção de todas as rotas de dados antes de receber informações comerciais.
+- Não use dados reais enquanto essas proteções não estiverem implementadas e testadas.
+
 ## Publicação do código-fonte
 
 O arquivo original `FINAL_5_land-bank-and-warehouse-crm.zip` foi mantido no histórico do repositório. O workflow **Expand CRM source** extrai os 109 arquivos do pacote para a raiz do projeto e registra o código-fonte em um novo commit, sem apagar o ZIP original.

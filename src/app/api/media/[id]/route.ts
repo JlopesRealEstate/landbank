@@ -10,8 +10,9 @@ export async function GET(request: Request, { params }: Params) {
   if (!Number.isInteger(mediaId)) return new Response("ID inválido", { status: 400 });
   try {
     const supabase = await createClient() as any;
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return new Response("Não autenticado", { status: 401 });
+    const { data: { claims }, error: authError } = await supabase.auth.getClaims();
+    const userId = typeof claims?.sub === "string" ? claims.sub : null;
+    if (authError || !userId) return new Response("Sessão não autenticada ou expirada. Entre novamente no CRM.", { status: 401 });
 
     const { data: row, error } = await supabase.from("media")
       .select("name,mime_type,data,storage_path,external_url")
@@ -57,8 +58,9 @@ export async function DELETE(_request: Request, { params }: Params) {
   if (!Number.isInteger(mediaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
     const supabase = await createClient() as any;
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) return Response.json({ ok: false, error: "Não autenticado." }, { status: 401 });
+    const { data: { claims }, error: authError } = await supabase.auth.getClaims();
+    const userId = typeof claims?.sub === "string" ? claims.sub : null;
+    if (authError || !userId) return Response.json({ ok: false, error: "Sessão não autenticada ou expirada. Entre novamente no CRM." }, { status: 401 });
 
     const { data: row, error: readError } = await supabase.from("media")
       .select("id,storage_path").eq("id", mediaId).maybeSingle();

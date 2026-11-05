@@ -16,7 +16,7 @@ export async function GET(_request: Request, { params }: Params) {
     if (authError || !user) return Response.json({ ok: false, error: "Não autenticado." }, { status: 401 });
     const { data, error } = await supabase.from("media").select("id,area_id,kind,category,name,mime_type,size,caption,external_url,sort_order,created_at").eq("area_id", areaId).order("sort_order").order("id");
     if (error) throw error;
-    return Response.json({ ok: true, media: (data ?? []).map((row) => ({
+    return Response.json({ ok: true, media: (data ?? []).map((row: { id: number; area_id: number; kind: string; category: string; name: string; mime_type: string; size: number; caption: string; external_url: string | null; sort_order: number; created_at: string }) => ({
       id: row.id, areaId: row.area_id, kind: row.kind, category: row.category, name: row.name,
       mimeType: row.mime_type, size: row.size, caption: row.caption, externalUrl: row.external_url,
       sortOrder: row.sort_order, createdAt: row.created_at, url: row.external_url ?? `/api/media/${row.id}`,

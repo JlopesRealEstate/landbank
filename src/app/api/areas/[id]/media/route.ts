@@ -11,7 +11,7 @@ export async function GET(_request: Request, { params }: Params) {
   const areaId = Number((await params).id);
   if (!Number.isInteger(areaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
-    const supabase = await createClient();
+    const supabase = await createClient() as any;
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return Response.json({ ok: false, error: "Não autenticado." }, { status: 401 });
     const { data, error } = await supabase.from("media").select("id,area_id,kind,category,name,mime_type,size,caption,external_url,sort_order,created_at").eq("area_id", areaId).order("sort_order").order("id");
@@ -31,7 +31,7 @@ export async function POST(request: Request, { params }: Params) {
   const areaId = Number((await params).id);
   if (!Number.isInteger(areaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
-    const supabase = await createClient();
+    const supabase = await createClient() as any;
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return Response.json({ ok: false, error: "Não autenticado." }, { status: 401 });
 

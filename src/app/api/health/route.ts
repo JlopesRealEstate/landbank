@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const supabase = await createClient();
+    const supabase = await createClient() as any;
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return Response.json({ ok: false, service: "supabase-auth", authenticated: false }, { status: 401 });

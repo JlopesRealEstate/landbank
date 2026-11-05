@@ -14,7 +14,7 @@ async function requireAdmin() {
     .eq("user_id", user.id)
     .maybeSingle();
   if (roleError) return { ok: false as const, status: 503 };
-  if (role?.role !== "admin") return { ok: false as const, status: 403 };
+  if ((role as { role?: string } | null)?.role !== "admin") return { ok: false as const, status: 403 };
   return { ok: true as const };
 }
 

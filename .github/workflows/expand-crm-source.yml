@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "FINAL_5_land-bank-and-warehouse-crm.zip"
-      - ".github/workflows/expand-crm-source.yml"
+      - "**"
   workflow_dispatch:
 
 permissions:

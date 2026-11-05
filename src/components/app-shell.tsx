@@ -16,7 +16,7 @@ import {
   Sparkles,
   X,
 } from "lucide-react";
-import { FileBarChart, Archive } from "lucide-react";
+import { FileBarChart, Archive, BellRing } from "lucide-react";
 import { BrandMark, cn } from "@/components/ui";
 
 const NAV = [

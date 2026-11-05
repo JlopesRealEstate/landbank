@@ -147,19 +147,7 @@ export function parseAreaInput(body: unknown): ParsedArea {
   return { value, errors };
 }
 
-const ALLOWED_MIME = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "application/pdf",
-  "application/vnd.google-earth.kmz",
-  "application/vnd.google-earth.kml+xml",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "application/zip",
-  "text/plain",
-];
-
+// No extension/MIME allow-list: private Storage access is controlled by Auth and RLS.
 export const MAX_UPLOAD_BYTES = 9 * 1024 * 1024;
 
 export function safeFileName(name: string): string {
@@ -167,5 +155,5 @@ export function safeFileName(name: string): string {
 }
 
 export function isAllowedMime(mime: string): boolean {
-  return ALLOWED_MIME.includes(mime) || mime.startsWith("image/");
+  return typeof mime === "string" && mime.trim().length > 0;
 }

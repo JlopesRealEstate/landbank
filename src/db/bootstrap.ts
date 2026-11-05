@@ -686,6 +686,9 @@ async function runBootstrap(): Promise<void> {
     await db.insert(cities).values(spSeed.slice(index, index + 200)).onConflictDoNothing();
   }
 
+  // Production starts with an empty operational portfolio. The hard-coded sample
+  // assets below are illustrative placeholders, not verified client inventory.
+  if (process.env.NODE_ENV !== "production") {
   await db.execute(sql`SELECT pg_advisory_lock(4815162342)`);
   try {
     const existing = await db.select({ id: areas.id }).from(areas).limit(1);
@@ -843,6 +846,7 @@ async function runBootstrap(): Promise<void> {
     await db.execute(sql`SELECT pg_advisory_unlock(4815162342)`);
   }
 }
+  }
 
 function citySlugOf(name: string): string {
   return name

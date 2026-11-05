@@ -3,7 +3,16 @@ import { countAreas } from "@/lib/data";
 
 export const dynamic = "force-dynamic";
 
+// Seeding is intentionally disabled in production until an authenticated
+// administrator workflow is implemented. Never expose a public write endpoint.
+function productionDisabled() {
+  return process.env.NODE_ENV === "production";
+}
+
 export async function POST() {
+  if (productionDisabled()) {
+    return Response.json({ ok: false, error: "Endpoint indisponível." }, { status: 404 });
+  }
   try {
     await ensureDatabase();
     const total = await countAreas();
@@ -15,6 +24,9 @@ export async function POST() {
 }
 
 export async function GET() {
+  if (productionDisabled()) {
+    return Response.json({ ok: false, error: "Endpoint indisponível." }, { status: 404 });
+  }
   const total = await countAreas().catch(() => 0);
   return Response.json({ ok: true, areas: total });
 }

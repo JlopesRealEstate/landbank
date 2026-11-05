@@ -11,7 +11,7 @@ Sistema de gestão de áreas e inteligência territorial para operações de lan
 - Restrições, características do terreno e análise de relevo
 - Inteligência territorial e enriquecimento de dados municipais/IBGE
 - Consultas, relatórios e apresentações compartilháveis
-- Base PostgreSQL com Drizzle ORM
+- Supabase PostgreSQL + Auth + RLS (migração em andamento)\n- Drizzle ORM mantido temporariamente para os módulos legados
 
 ## Stack
 
@@ -45,7 +45,7 @@ Aplicação: http://localhost:3000
 
 | Variável | Finalidade |
 | --- | --- |
-| `DATABASE_URL` | Conexão PostgreSQL (obrigatória) |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto Supabase |\n| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Chave pública do cliente Supabase (RLS obrigatória) |\n| `DATABASE_URL` | Conexão PostgreSQL legada, necessária até migrar os módulos Drizzle |
 | `GOOGLE_MAPS_API_KEY` | Serviços Google Maps no servidor, quando habilitados |
 | `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Recursos de mapa no navegador, quando habilitados |
 | `RESEND_API_KEY` | Envio de e-mails via Resend, quando habilitado |
@@ -55,7 +55,7 @@ Nunca publique valores reais de chaves, senhas ou tokens no repositório.
 
 ## Banco de dados
 
-O projeto usa Drizzle ORM e inicializa/verifica a estrutura de dados por meio de `src/db/bootstrap.ts`. A conexão da aplicação é lida de `DATABASE_URL`.
+O CRM possui uma estrutura Supabase com autenticação e RLS. O aplicativo original ainda possui módulos que usam Drizzle ORM e inicializam/verificam dados por `src/db/bootstrap.ts`; esses módulos continuam dependendo de `DATABASE_URL` até a migração de consultas e gravações.
 
 Antes de executar migrações ou rotinas de seed em produção, revise o schema e faça backup do banco.
 
@@ -106,11 +106,11 @@ O arquivo original `FINAL_5_land-bank-and-warehouse-crm.zip` foi mantido no hist
 - Projeto: `EldoradoCorp CRM` (`bephigzcfsaltsexsimm`)
 - Região: São Paulo (sa-east-1)
 - API URL: `https://bephigzcfsaltsexsimm.supabase.co`
-- Migration: `supabase/migrations/202611050001_initial_eldoradocorp_crm.sql`
+- Migrations versionadas: `202611050001_initial_eldoradocorp_crm.sql`, `202611050002_security_hardening.sql` e `202611050003_landbank_operational_schema.sql`
 - Auth SSR: `src/lib/supabase/client.ts`, `server.ts` e `proxy.ts`
 - Login: `/login`
 
-A migration cria perfis, papéis, empresas, contatos, imóveis/áreas, oportunidades, tarefas, estudos de viabilidade, links de compartilhamento e trilha de auditoria. As tabelas operacionais têm RLS habilitado. Usuários começam como `member`; ninguém pode se promover a administrador pelo cliente. O papel inicial de administrador deve ser atribuído manualmente pelo proprietário do projeto após criar o usuário autorizado, usando SQL Editor no Supabase:
+O banco contém as tabelas do CRM comercial (`companies`, `contacts`, `properties`, `opportunities`, `tasks`, `viability_studies`, `share_links`, `audit_log`) e as tabelas do Land Bank original (`areas`, `media`, `ibge_cities`, `activities`, `area_restrictions`, `terrain_analyses`, `market_news`). As 17 tabelas públicas estão com RLS habilitado. Os registros corporativos de Land Bank estão compartilhados entre usuários autenticados; ações de exclusão ficam restritas ao administrador. Usuários começam como `member`; ninguém pode se promover a administrador pelo cliente. O papel inicial de administrador deve ser atribuído manualmente pelo proprietário do projeto após criar o usuário autorizado, usando SQL Editor no Supabase:
 
 ```sql
 -- Substitua pelo UUID do usuário autorizado, conferido em Authentication > Users.
@@ -121,4 +121,4 @@ on conflict (user_id) do update set role = 'admin';
 
 Não use service-role key no navegador ou no GitHub. Configure apenas a publishable key nas variáveis `NEXT_PUBLIC_*`; a RLS é obrigatória. Links de compartilhamento ainda não têm endpoint público de resolução e permanecem privados por padrão.
 
-**Status da integração:** banco e migration inicial aplicados; clientes Supabase SSR e tela de login adicionados ao repositório. O dashboard e os módulos legados ainda precisam ser migrados para consultar as tabelas Supabase, e o deploy/variáveis da Vercel ainda não foram configurados ou validados.
+**Status real da integração (05/11/2026):** projeto Supabase ativo; usuário `jlopes@tecnolopes.com.br` verificado com papel `admin`; 17 tabelas públicas com RLS; tabelas operacionais Land Bank criadas; clientes Supabase SSR e tela de login no repositório. A aplicação principal e suas rotas de áreas ainda usam Drizzle/PostgreSQL legado — a troca de persistência ainda não foi concluída. Variáveis de ambiente na Vercel, build remoto e login em produção ainda não foram validados. Não cadastrar dados comerciais reais até concluir essa migração e os testes.

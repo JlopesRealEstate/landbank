@@ -263,7 +263,7 @@ export function RestrictionMap({
       </div>
       <button
         type="button"
-        onClick={() => void toggleFullscreen()
+        onClick={() => void toggleFullscreen()}
         className="absolute right-2 top-2 z-[500] inline-flex items-center gap-1 rounded-md border border-line bg-white/95 px-2 py-1 text-[10px] font-medium text-ink shadow-sm hover:border-leaf hover:text-leaf-600"
         title={fullscreen ? "Sair da tela cheia" : "Expandir mapa de restrições"}
       >

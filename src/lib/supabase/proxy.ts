@@ -7,8 +7,15 @@ function copyCookies(from: NextResponse, to: NextResponse) {
   });
 }
 
-function safeNextPath(value: string | null) {
-  return value && value.startsWith("/") && !value.startsWith("//") ? value : "/";
+function safeNextUrl(value: string | null, origin: string) {
+  const fallback = new URL("/", origin);
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;
+  try {
+    const target = new URL(value, origin);
+    return target.origin === origin ? target : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 export async function updateSession(request: NextRequest) {
@@ -55,11 +62,8 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isAuthenticated && isLoginPage) {
-    const destination = safeNextPath(request.nextUrl.searchParams.get("next"));
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = destination;
-    redirectUrl.search = "";
-    const redirect = NextResponse.redirect(redirectUrl);
+    const destination = safeNextUrl(request.nextUrl.searchParams.get("next"), request.nextUrl.origin);
+    const redirect = NextResponse.redirect(destination);
     copyCookies(response, redirect);
     redirect.headers.set("Cache-Control", "private, no-store");
     return redirect;

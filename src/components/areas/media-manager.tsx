@@ -147,7 +147,7 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
             <ImagePlus className="mt-0.5 h-4 w-4 text-leaf" />
             <div>
               <p className="text-xs font-semibold text-ink">Fotos do imóvel</p>
-              <p className="text-[10px] text-muted">JPG/PNG · compressão automática para apresentação</p>
+              <p className="text-[10px] text-muted">Imagens em diversos formatos · compressão automática quando compatível</p>
             </div>
           </div>
           <input
@@ -174,7 +174,7 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
             <Paperclip className="mt-0.5 h-4 w-4 text-ink-soft" />
             <div>
               <p className="text-xs font-semibold text-ink">Documentos e mapas</p>
-              <p className="text-[10px] text-muted">Matrícula, planta, projeto, mapa, laudo, KMZ · até 9 MB</p>
+              <p className="text-[10px] text-muted">Qualquer extensão: KMZ, PDF, Office, imagens, CAD, ZIP e outros · até 9 MB por arquivo</p>
             </div>
           </div>
           <div className="mt-2.5 flex gap-1.5">
@@ -193,7 +193,7 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
               ref={docRef}
               type="file"
               multiple
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.kml,.kmz,.zip,.txt,image/*"
+              
               className="hidden"
               onChange={(event) => void upload(event.target.files, "document")}
             />

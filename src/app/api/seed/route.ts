@@ -1,17 +1,27 @@
 import { ensureDatabase } from "@/db/bootstrap";
 import { countAreas } from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-// Seeding is intentionally disabled in production until an authenticated
-// administrator workflow is implemented. Never expose a public write endpoint.
-function productionDisabled() {
-  return process.env.NODE_ENV === "production";
+async function requireAdmin() {
+  const supabase = await createClient();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error || !user) return { ok: false as const, status: 401 };
+  const { data: role, error: roleError } = await supabase
+    .from("user_roles")
+    .select("role")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (roleError) return { ok: false as const, status: 503 };
+  if (role?.role !== "admin") return { ok: false as const, status: 403 };
+  return { ok: true as const };
 }
 
 export async function POST() {
-  if (productionDisabled()) {
-    return Response.json({ ok: false, error: "Endpoint indisponível." }, { status: 404 });
+  const access = await requireAdmin();
+  if (!access.ok) {
+    return Response.json({ ok: false, error: "Acesso administrativo necessário." }, { status: access.status });
   }
   try {
     await ensureDatabase();
@@ -21,12 +31,4 @@ export async function POST() {
     console.error("[seed:POST]", error);
     return Response.json({ ok: false, error: "Falha ao preparar a base." }, { status: 500 });
   }
-}
-
-export async function GET() {
-  if (productionDisabled()) {
-    return Response.json({ ok: false, error: "Endpoint indisponível." }, { status: 404 });
-  }
-  const total = await countAreas().catch(() => 0);
-  return Response.json({ ok: true, areas: total });
 }

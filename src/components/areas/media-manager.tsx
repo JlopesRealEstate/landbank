@@ -114,6 +114,7 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
       }
       const response = await fetch(`/api/areas/${areaId}/media`, {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items }),
       });
@@ -133,7 +134,7 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
   async function remove(mediaId: number) {
     if (!window.confirm("Remover este arquivo do dossiê?")) return;
     setRemoving(mediaId);
-    const response = await fetch(`/api/media/${mediaId}`, { method: "DELETE" });
+    const response = await fetch(`/api/media/${mediaId}`, { method: "DELETE", credentials: "same-origin" });
     if (response.ok) router.refresh();
     setRemoving(null);
   }

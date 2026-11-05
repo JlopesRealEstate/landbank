@@ -28,6 +28,7 @@ const NAV = [
   { href: "/relatorios", label: "Relatórios", icon: FileBarChart, hint: "KPIs e PDF" },
   { href: "/consultas", label: "Consultas", icon: Archive, hint: "Vendidos e cancelados" },
   { href: "/documentacao", label: "Documentação", icon: BookOpen, hint: "Manual e ajuda" },
+  { href: "/atualizacoes", label: "Atualizações do CRM", icon: BellRing, hint: "Novidades e melhorias" },
 ];
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {

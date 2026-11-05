@@ -116,3 +116,32 @@ create policy "market news admin delete" on public.market_news for delete to aut
 grant select, insert, update, delete on public.areas, public.media, public.activities, public.area_restrictions, public.terrain_analyses to authenticated;
 grant select, insert, update, delete on public.ibge_cities, public.market_news to authenticated;
 grant usage, select on all sequences in schema public to authenticated;
+
+-- Rebind policies from the first CRM schema to private authorization helpers.
+drop policy if exists "profile read self or admin" on public.profiles;
+create policy "profile read self or admin" on public.profiles for select to authenticated using(id=(select auth.uid()) or private.is_admin());
+drop policy if exists "roles read self or admin" on public.user_roles;
+create policy "roles read self or admin" on public.user_roles for select to authenticated using(user_id=(select auth.uid()) or private.is_admin());
+do $$ declare t text; begin foreach t in array array['companies','contacts','properties','opportunities','tasks','viability_studies'] loop
+ execute format('drop policy if exists %I on public.%I',t||'_select',t);
+ execute format('create policy %I on public.%I for select to authenticated using(owner_id=(select auth.uid()) or private.is_admin())',t||'_select',t);
+ execute format('drop policy if exists %I on public.%I',t||'_insert',t);
+ execute format('create policy %I on public.%I for insert to authenticated with check((owner_id=(select auth.uid()) or private.is_admin()) and not private.has_role(''reader''))',t||'_insert',t);
+ execute format('drop policy if exists %I on public.%I',t||'_update',t);
+ execute format('create policy %I on public.%I for update to authenticated using((owner_id=(select auth.uid()) or private.is_admin()) and not private.has_role(''reader'')) with check((owner_id=(select auth.uid()) or private.is_admin()) and not private.has_role(''reader''))',t||'_update',t);
+ execute format('drop policy if exists %I on public.%I',t||'_delete',t);
+ execute format('create policy %I on public.%I for delete to authenticated using(private.is_admin())',t||'_delete',t);
+end loop; end $$;
+drop policy if exists "audit admin read" on public.audit_log;
+create policy "audit admin read" on public.audit_log for select to authenticated using(private.is_admin());
+-- Remove redundant permissive policies and add missing FK indexes.
+drop policy if exists "ibge cities admin write" on public.ibge_cities;
+drop policy if exists "market news admin write" on public.market_news;
+create policy "ibge cities admin insert" on public.ibge_cities for insert to authenticated with check(private.is_admin());
+create policy "ibge cities admin update" on public.ibge_cities for update to authenticated using(private.is_admin()) with check(private.is_admin());
+create policy "ibge cities admin delete" on public.ibge_cities for delete to authenticated using(private.is_admin());
+create policy "market news admin insert" on public.market_news for insert to authenticated with check(private.is_admin());
+create policy "market news admin update" on public.market_news for update to authenticated using(private.is_admin()) with check(private.is_admin());
+create policy "market news admin delete" on public.market_news for delete to authenticated using(private.is_admin());
+create index if not exists activities_actor_id_idx on public.activities(actor_id);
+create index if not exists media_created_by_idx on public.media(created_by);

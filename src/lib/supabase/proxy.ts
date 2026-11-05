@@ -44,8 +44,8 @@ export async function updateSession(request: NextRequest) {
   });
 
   // Validate the JWT signature and refresh the session before rendering.
-  const { data: { claims }, error } = await supabase.auth.getClaims();
-  const isAuthenticated = Boolean(claims && !error);
+  const { data, error } = await supabase.auth.getClaims();
+  const isAuthenticated = Boolean(data && !error);
   const pathname = request.nextUrl.pathname;
   const isLoginPage = pathname === "/login";
   const isAuthRoute = pathname.startsWith("/auth");

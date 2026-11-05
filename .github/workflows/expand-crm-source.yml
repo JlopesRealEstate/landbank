@@ -5,7 +5,7 @@ on:
     branches: [main]
     paths:
       - "FINAL_5_land-bank-and-warehouse-crm.zip"
-      - "**"
+      - "FINAL_5_land-bank-and-warehouse-crm.zip"
   workflow_dispatch:
 
 permissions:

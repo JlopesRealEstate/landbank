@@ -9,7 +9,7 @@ export async function GET(request: Request, { params }: Params) {
   const mediaId = Number((await params).id);
   if (!Number.isInteger(mediaId)) return new Response("ID inválido", { status: 400 });
   try {
-    const supabase = await createClient();
+    const supabase = await createClient() as any;
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return new Response("Não autenticado", { status: 401 });
 
@@ -37,7 +37,7 @@ export async function GET(request: Request, { params }: Params) {
     }
 
     const download = new URL(request.url).searchParams.get("download") === "1";
-    return new Response(bytes, {
+    return new Response(new Blob([bytes as unknown as BlobPart]), {
       headers: {
         "Content-Type": row.mime_type || "application/octet-stream",
         "Content-Length": String(bytes.byteLength),
@@ -56,7 +56,7 @@ export async function DELETE(_request: Request, { params }: Params) {
   const mediaId = Number((await params).id);
   if (!Number.isInteger(mediaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
-    const supabase = await createClient();
+    const supabase = await createClient() as any;
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) return Response.json({ ok: false, error: "Não autenticado." }, { status: 401 });
 

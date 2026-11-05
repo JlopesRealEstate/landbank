@@ -569,7 +569,7 @@ let bootstrapPromise: Promise<void> | null = null;
 async function runBootstrap(): Promise<void> {
   // Production schema and reference data are provisioned through Supabase migrations.
   // Do not run DDL or bulk seed writes during a customer page request.
-  if (process.env.NODE_ENV === "production") return;
+  if (String(process.env.NODE_ENV) === "production") return;
 
   for (const statement of DDL) {
     await db.execute(sql.raw(statement));

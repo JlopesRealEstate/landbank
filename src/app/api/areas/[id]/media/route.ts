@@ -35,53 +35,38 @@ export async function POST(request: Request, { params }: Params) {
   if (!Number.isInteger(areaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
     const supabase = await createClient() as any;
-    // Validate the signed session JWT locally. getUser() adds an Auth network
-    // round-trip and can fail independently of the valid SSR cookie session.
     const { data: { claims }, error: authError } = await supabase.auth.getClaims();
     const userId = typeof claims?.sub === "string" ? claims.sub : null;
-    if (authError || !userId) return Response.json({ ok: false, error: "Sessão não autenticada ou expirada. Entre novamente no CRM." }, { status: 401 });
+    if (authError || !userId) return Response.json({ ok: false, error: "Sessão expirada. Entre novamente no CRM." }, { status: 401 });
 
     const { data: area, error: areaError } = await supabase.from("areas").select("id,code").eq("id", areaId).maybeSingle();
     if (areaError) throw areaError;
-    if (!area) return Response.json({ ok: false, error: "Imóvel não encontrado no Supabase." }, { status: 404 });
+    if (!area) return Response.json({ ok: false, error: "Imóvel não encontrado." }, { status: 404 });
 
-    const payload = await request.json().catch(() => null) as
-      | { items?: unknown[]; kind?: string; category?: string; name?: string; mimeType?: string; data?: string; caption?: string }
-      | null;
-    if (!payload) return Response.json({ ok: false, error: "Payload inválido." }, { status: 400 });
+    const payload = await request.json().catch(() => null) as { items?: Array<{ kind?: string; category?: string; name?: string; mimeType?: string; size?: number; storagePath?: string; caption?: string }> } | null;
+    if (!payload || !Array.isArray(payload.items) || !payload.items.length) return Response.json({ ok: false, error: "Nenhum arquivo informado." }, { status: 400 });
 
-    const items = Array.isArray(payload.items) ? payload.items : [payload];
     const inserted: number[] = [];
-    for (const raw of items) {
-      const item = raw as Record<string, unknown>;
-      const kind = item.kind === "document" ? "document" : "photo";
-      const mimeType = typeof item.mimeType === "string" && item.mimeType ? item.mimeType : FALLBACK_MIME;
-      const base64 = typeof item.data === "string" ? item.data.replace(/^data:[^;]+;base64,/, "") : "";
-      if (!base64) continue;
+    for (const item of payload.items) {
+      const name = safeFileName(typeof item.name === "string" ? item.name : "arquivo");
+      const mimeType = typeof item.mimeType === "string" ? item.mimeType : FALLBACK_MIME;
+      const size = Number(item.size);
+      const storagePath = typeof item.storagePath === "string" ? item.storagePath : "";
+      if (!storagePath.startsWith(`${areaId}/`) || storagePath.includes("..")) return Response.json({ ok: false, error: "Caminho de armazenamento inválido." }, { status: 400 });
       if (!isAllowedMime(mimeType)) return Response.json({ ok: false, error: `Formato não permitido (${mimeType}).` }, { status: 415 });
-      const bytes = Buffer.from(base64, "base64");
-      if (bytes.byteLength > MAX_UPLOAD_BYTES) return Response.json({ ok: false, error: "Arquivo acima de 9 MB." }, { status: 413 });
-
-      const name = safeFileName(typeof item.name === "string" && item.name ? item.name : "arquivo");
-      const storagePath = `${areaId}/${crypto.randomUUID()}-${name}`;
-      const { error: uploadError } = await supabase.storage.from(BUCKET).upload(storagePath, new Uint8Array(bytes), {
-        contentType: mimeType, upsert: false,
-      });
-      if (uploadError) throw uploadError;
+      if (!Number.isFinite(size) || size <= 0 || size > MAX_UPLOAD_BYTES) return Response.json({ ok: false, error: "Arquivo acima do limite de 9 MB ou vazio." }, { status: 413 });
 
       const { data: row, error: insertError } = await supabase.from("media").insert({
-        area_id: areaId, kind, category: typeof item.category === "string" && item.category ? item.category : kind === "photo" ? "fachada" : "outro",
-        name, mime_type: mimeType, size: bytes.byteLength,
+        area_id: areaId,
+        kind: item.kind === "document" ? "document" : "photo",
+        category: typeof item.category === "string" && item.category ? item.category : "outro",
+        name, mime_type: mimeType, size,
         caption: typeof item.caption === "string" ? item.caption.slice(0, 240) : "",
         storage_path: storagePath, data: null, created_by: userId, sort_order: 50 + inserted.length,
       }).select("id").single();
-      if (insertError) {
-        await supabase.storage.from(BUCKET).remove([storagePath]);
-        throw insertError;
-      }
+      if (insertError) throw insertError;
       inserted.push(row.id);
     }
-    if (!inserted.length) return Response.json({ ok: false, error: "Nenhum arquivo válido recebido." }, { status: 400 });
 
     await supabase.from("activities").insert({
       area_id: areaId, type: "upload", title: "Novos arquivos anexados",
@@ -90,6 +75,7 @@ export async function POST(request: Request, { params }: Params) {
     return Response.json({ ok: true, ids: inserted }, { status: 201 });
   } catch (error) {
     console.error("[areas:id:media:POST]", error);
-    return Response.json({ ok: false, error: "Não foi possível enviar os arquivos ao armazenamento seguro." }, { status: 500 });
+    const detail = error instanceof Error ? error.message : "Erro desconhecido";
+    return Response.json({ ok: false, error: `Falha ao registrar arquivo: ${detail.slice(0, 220)}` }, { status: 500 });
   }
 }

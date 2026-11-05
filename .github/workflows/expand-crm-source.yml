@@ -1,0 +1,61 @@
+name: Expand CRM source
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "FINAL_5_land-bank-and-warehouse-crm.zip"
+      - ".github/workflows/expand-crm-source.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  expand:
+    if: "!contains(github.event.head_commit.message, 'chore: expand CRM source')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Extract source and remove local database credentials
+        run: |
+          python - <<'PY'
+          import json, pathlib, zipfile
+          archive = pathlib.Path("FINAL_5_land-bank-and-warehouse-crm.zip")
+          with zipfile.ZipFile(archive) as z:
+              for item in z.infolist():
+                  name = item.filename
+                  if not name or name.endswith("/") or name.startswith("__MACOSX/"):
+                      continue
+                  p = pathlib.PurePosixPath(name)
+                  if p.is_absolute() or ".." in p.parts:
+                      raise SystemExit(f"Unsafe archive path: {name}")
+                  if any(part in {"node_modules", ".next"} for part in p.parts):
+                      continue
+                  if p.name.lower().startswith(".env") and p.name != ".env.example":
+                      continue
+                  target = pathlib.Path(*p.parts)
+                  target.parent.mkdir(parents=True, exist_ok=True)
+                  target.write_bytes(z.read(item))
+          config = pathlib.Path("drizzle.config.json")
+          if config.exists():
+              config.unlink()
+          pathlib.Path("drizzle.config.ts").write_text(
+              'import { defineConfig } from "drizzle-kit";\n'
+              'export default defineConfig({\n'
+              '  dialect: "postgresql",\n'
+              '  schema: "./src/db/schema.ts",\n'
+              '  dbCredentials: { url: process.env.DATABASE_URL ?? "" },\n'
+              '});\n',
+              encoding="utf-8"
+          )
+          PY
+      - name: Commit extracted application
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "chore: expand CRM source" || echo "No changes to commit"
+          git push

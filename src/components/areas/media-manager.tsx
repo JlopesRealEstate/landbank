@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { DOCUMENT_CATEGORIES, dateLabel } from "@/lib/format";
 import { cn } from "@/components/ui";
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 
 export type MediaItem = {
   id: number;
@@ -86,41 +87,40 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
     setBusy(kind);
     setMessage(null);
     try {
-      const items = [];
+      const supabase = createSupabaseClient() as any;
+      const registered: Array<{ kind: string; category: string; name: string; mimeType: string; size: number; storagePath: string; caption: string }> = [];
+      const uploadedPaths: string[] = [];
       for (const file of Array.from(files)) {
-        if (file.size > 9 * 1024 * 1024) {
-          throw new Error(`${file.name} excede 9 MB.`);
-        }
-        if (kind === "photo") {
-          const compressed = await compressPhoto(file);
-          items.push({
-            kind,
-            category: "fachada",
-            name: compressed.name,
-            mimeType: compressed.mimeType,
-            data: compressed.data,
-            caption: "",
-          });
-        } else {
-          items.push({
-            kind,
-            category,
-            name: file.name,
-            mimeType: file.type || "application/octet-stream",
-            data: await fileToBase64(file),
-            caption: "",
-          });
-        }
+        if (file.size > 9 * 1024 * 1024) throw new Error(`${file.name} excede 9 MB.`);
+        const prepared = kind === "photo"
+          ? await compressPhoto(file)
+          : { data: await fileToBase64(file), mimeType: file.type || "application/octet-stream", size: file.size, name: file.name };
+        const binary = atob(prepared.data);
+        const bytes = new Uint8Array(binary.length);
+        for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+        const storagePath = `${areaId}/${crypto.randomUUID()}-${prepared.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
+        const { error: uploadError } = await supabase.storage.from("landbank-files").upload(storagePath, bytes, {
+          contentType: prepared.mimeType, upsert: false,
+        });
+        if (uploadError) throw new Error(`Storage recusou "${file.name}": ${uploadError.message}`);
+        uploadedPaths.push(storagePath);
+        registered.push({
+          kind, category: kind === "photo" ? "fachada" : category,
+          name: prepared.name, mimeType: prepared.mimeType, size: bytes.byteLength, storagePath, caption: "",
+        });
       }
       const response = await fetch(`/api/areas/${areaId}/media`, {
         method: "POST",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items: registered }),
       });
       const data = (await response.json()) as { ok: boolean; error?: string };
-      if (!response.ok || !data.ok) throw new Error(data.error ?? "Falha no upload");
-      setMessage({ tone: "ok", text: `${items.length} arquivo(s) adicionados ao dossiê.` });
+      if (!response.ok || !data.ok) {
+        await supabase.storage.from("landbank-files").remove(uploadedPaths);
+        throw new Error(data.error ?? "Falha ao registrar arquivos no dossiê.");
+      }
+      setMessage({ tone: "ok", text: `${registered.length} arquivo(s) adicionados ao dossiê.` });
       if (kind === "photo" && photoRef.current) photoRef.current.value = "";
       if (kind === "document" && docRef.current) docRef.current.value = "";
       router.refresh();

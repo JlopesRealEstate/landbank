@@ -3,6 +3,16 @@ import { CRM_VERSION, CRM_RELEASE_DATE } from "@/lib/version";
 
 const releases = [
   {
+    version: "1.4.1",
+    date: "06/11/2026",
+    title: "Fotos privadas e rodapé fixo do menu",
+    items: [
+      { icon: FileUp, title: "Leitura de fotos sem bloqueio indevido por RLS", detail: "A sessão e o perfil são validados primeiro; os metadados do arquivo são consultados com a chave administrativa exclusivamente no servidor. O bucket permanece privado." },
+      { icon: Layers, title: "Logoff sempre visível", detail: "Navegação e rodapé agora ocupam regiões independentes. A navegação rola sem empurrar ou cortar os botões da conta, no desktop e no celular." },
+      { icon: ShieldCheck, title: "Segurança preservada", detail: "Apenas perfis autenticados autorizados podem solicitar a imagem; a chave administrativa nunca é enviada ao navegador." },
+    ],
+  },
+  {
     version: "1.4.0",
     date: "06/11/2026",
     title: "Menu responsivo e correções de publicação",

@@ -20,7 +20,7 @@ export default function LoginPage() {
     setResetBusy(true); setError(""); setNotice("");
     try {
       const supabase = createClient();
-      const redirectTo = "https://landbank-mu.vercel.app/auth/callback?next=%2Fdefinir-senha";
+      const redirectTo = "https://landbank-mu.vercel.app/auth/confirm?next=%2Fdefinir-senha";
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
       if (resetError) throw resetError;
       setNotice("Se o e-mail estiver cadastrado, enviaremos um link seguro para redefinir a senha. Use sempre o link mais recente.");

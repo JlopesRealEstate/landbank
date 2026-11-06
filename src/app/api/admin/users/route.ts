@@ -16,11 +16,12 @@ async function getAdminContext() {
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) {
-    return { error: Response.json({ ok: false, error: "Configure SUPABASE_SERVICE_ROLE_KEY somente no ambiente server-side da Vercel para habilitar convites administrativos." }, { status: 503 }) };
+  // Prefer the current Supabase secret key; retain legacy service-role fallback.
+  const adminKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !adminKey) {
+    return { error: Response.json({ ok: false, error: "A chave administrativa do Supabase não está configurada no servidor. Configure SUPABASE_SECRET_KEY na Vercel." }, { status: 503 }) };
   }
-  const admin = createSupabaseAdminClient(url, serviceKey, {
+  const admin = createSupabaseAdminClient(url, adminKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
   return { admin, user };
@@ -34,8 +35,14 @@ export async function GET() {
       context.admin.auth.admin.listUsers({ page: 1, perPage: 200 }),
       context.admin.from("user_roles").select("user_id,role,created_at"),
     ]);
-    if (usersError) throw usersError;
-    if (rolesError) throw rolesError;
+    if (usersError) {
+      console.error("[admin:users:auth-admin]", { status: usersError.status, code: usersError.code, message: usersError.message });
+      throw new Error("Falha ao consultar Auth Admin do Supabase: " + usersError.message);
+    }
+    if (rolesError) {
+      console.error("[admin:users:roles]", { code: rolesError.code, message: rolesError.message });
+      throw new Error("Falha ao consultar perfis de acesso: " + rolesError.message);
+    }
     const roleMap = new Map((roles ?? []).map((item) => [item.user_id, item.role]));
     const users = (usersData.users ?? []).map((item) => ({
       id: item.id,
@@ -47,7 +54,8 @@ export async function GET() {
     return Response.json({ ok: true, users });
   } catch (error) {
     console.error("[admin:users:GET]", error);
-    return Response.json({ ok: false, error: "Não foi possível carregar os usuários." }, { status: 500 });
+    const detail = error instanceof Error ? error.message : "Erro desconhecido";
+    return Response.json({ ok: false, error: "Não foi possível carregar os usuários.", detail: detail.slice(0, 240) }, { status: 500 });
   }
 }
 

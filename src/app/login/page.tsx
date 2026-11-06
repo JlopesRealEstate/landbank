@@ -46,7 +46,7 @@ export default function LoginPage() {
           {error && <p role="alert" className="rounded-lg border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
           <button disabled={busy} className="w-full rounded-lg bg-amber-400 px-4 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:opacity-60">{busy ? "Entrando..." : "Entrar"}</button>
         </form>
-        <p className="mt-6 text-xs leading-5 text-white/40">A criação de usuários deve ser feita por convite administrativo no Supabase. O cadastro público não é oferecido nesta tela.</p>
+        <p className="mt-6 text-xs leading-5 text-white/40">Novas contas são liberadas exclusivamente por convite de um administrador do Land Bank Corp. O cadastro público não é permitido.</p>
       </section>
     </main>
   );

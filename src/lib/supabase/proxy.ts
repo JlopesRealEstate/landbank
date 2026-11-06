@@ -43,14 +43,29 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  // Validate the JWT signature and refresh the session before rendering.
-  const { data, error } = await supabase.auth.getClaims();
-  const isAuthenticated = Boolean(data && !error);
+  // Validate the user with Auth (not by destructuring JWT claims, which can be null).
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  const user = authData?.user ?? null;
   const pathname = request.nextUrl.pathname;
   const isLoginPage = pathname === "/login";
+  const isDeniedPage = pathname === "/acesso-negado";
   const isAuthRoute = pathname.startsWith("/auth");
+  const isPublicPresentation = pathname.startsWith("/apresentacao/");
 
-  if (!isAuthenticated && !isLoginPage && !isAuthRoute) {
+  let authorized = false;
+  if (user && !authError) {
+    const { data: roleRow, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    authorized = !roleError && ["admin", "member", "reader"].includes(roleRow?.role ?? "");
+  }
+
+  if (!user && !isLoginPage && !isAuthRoute && !isPublicPresentation && !isDeniedPage) {
+    if (pathname.startsWith("/api/")) {
+      return Response.json({ ok: false, error: "Autenticação necessária." }, { status: 401, headers: { "Cache-Control": "private, no-store" } });
+    }
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     loginUrl.search = "";
@@ -61,7 +76,17 @@ export async function updateSession(request: NextRequest) {
     return redirect;
   }
 
-  if (isAuthenticated && isLoginPage) {
+  if (user && !authorized && !isAuthRoute && !isPublicPresentation && !isDeniedPage) {
+    if (pathname.startsWith("/api/")) {
+      return Response.json({ ok: false, error: "Acesso não autorizado. Solicite liberação ao administrador." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+    }
+    const denied = NextResponse.redirect(new URL("/acesso-negado", request.url));
+    copyCookies(response, denied);
+    denied.headers.set("Cache-Control", "private, no-store");
+    return denied;
+  }
+
+  if (user && authorized && (isLoginPage || isDeniedPage)) {
     const destination = safeNextUrl(request.nextUrl.searchParams.get("next"), request.nextUrl.origin);
     const redirect = NextResponse.redirect(destination);
     copyCookies(response, redirect);

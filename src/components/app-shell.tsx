@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { FileBarChart, Archive, BellRing } from "lucide-react";
 import { BrandMark, cn } from "@/components/ui";
+import { CRM_VERSION } from "@/lib/version";
 
 const NAV = [
   { href: "/", label: "Painel executivo", icon: LayoutDashboard, hint: "Portfólio e mapa" },
@@ -96,7 +97,7 @@ function SidebarFooter() {
           junior.lopes@creci.org.br
         </a>
       </div>
-      <p className="px-1 text-[10px] text-white/35">Land Bank Corp · v1.3.0</p>
+      <p className="px-1 text-[10px] text-white/35">Land Bank Corp · v{CRM_VERSION}</p>
     </div>
   );
 }

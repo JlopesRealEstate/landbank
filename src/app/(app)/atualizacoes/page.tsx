@@ -7,7 +7,7 @@ const releases = [
     date: "05/11/2026",
     title: "Segurança, mapas e relatórios técnicos",
     items: [
-      { icon: ShieldCheck, title: "Controle de acesso por perfil", detail: "Login obrigatório, lista de usuários autorizados, perfis de administrador, editor e somente leitura, convites e revogação de acesso." },
+      { icon: ShieldCheck, title: "Controle de acesso por perfil", detail: "Login obrigatório, convites e revogação de acesso. RLS também bloqueia acesso direto às tabelas e arquivos para contas sem perfil autorizado." },
       { icon: KeyRound, title: "Convites e senha individual", detail: "Cada colaborador recebe convite por e-mail e define sua própria senha. Nenhuma senha compartilhada pelo administrador." },
       { icon: FileUp, title: "Correção de autenticação no upload", detail: "Validação de usuário com tratamento seguro para sessão ausente, evitando leitura de claims nulos." },
       { icon: Layers, title: "Camada Restrições no mapa", detail: "Ative curvas de nível e polígonos de APP, linhão, dutos e demais perdas do imóvel selecionado." },

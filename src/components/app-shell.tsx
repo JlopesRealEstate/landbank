@@ -38,11 +38,11 @@ const NAV = [
   { href: "/acessos", label: "Controle de acessos", icon: ShieldCheck, hint: "Usuários e permissões" },
 ];
 
-function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+function NavLinks({ onNavigate, isAdmin }: { onNavigate?: () => void; isAdmin: boolean }) {
   const pathname = usePathname();
   return (
     <nav className="space-y-1">
-      {NAV.map((item) => {
+      {NAV.filter((item) => isAdmin || !["/acessos", "/relatorios"].includes(item.href)).map((item) => {
         const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
         const Icon = item.icon;
         return (
@@ -125,17 +125,17 @@ function AuthActions() {
   );
 }
 
-function SidebarFooter() {
+function SidebarFooter({ isAdmin }: { isAdmin: boolean }) {
   return (
     <div className="space-y-3">
       <AuthActions />
-      <Link
+      {isAdmin ? <Link
         href="/areas/nova"
         className="flex items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/15 transition hover:bg-white/15"
       >
         <Plus className="h-4 w-4 text-[#e9b7c1]" />
         Cadastrar área
-      </Link>
+      </Link> : null}
       <div className="rounded-xl bg-forest-600/60 p-3 ring-1 ring-inset ring-white/10">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-3.5 w-3.5 text-[#e9b7c1]" />
@@ -163,6 +163,18 @@ function SidebarFooter() {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const supabase = createClient();
+    void supabase.auth.getUser().then(async ({ data }) => {
+      if (!active || !data.user) return;
+      const { data: role } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle();
+      if (active) setIsAdmin(role?.role === "admin");
+    });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     setOpen(false);
@@ -188,10 +200,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div className="mt-6">
             <p className="mb-2 px-3 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/35">Navegação</p>
-            <NavLinks />
+            <NavLinks isAdmin={isAdmin} />
           </div>
         </div>
-        <SidebarFooter />
+        <SidebarFooter isAdmin={isAdmin} />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -239,7 +251,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </button>
                 </div>
                 <div className="mt-6">
-                  <NavLinks onNavigate={() => setOpen(false)} />
+                  <NavLinks isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
                 </div>
               </div>
               <SidebarFooter />

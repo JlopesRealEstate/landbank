@@ -1,5 +1,10 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.3.1 — 05/11/2026
+- Corrige a recuperação de senha para redirecionar explicitamente ao domínio de produção e ao callback PKCE.
+- Adiciona ação Esqueci minha senha à tela de login e orienta o usuário a solicitar um link novo.
+
+
 ## 1.3.0 — 05/11/2026
 - Corrige validação de autenticação nos endpoints de upload: usa usuário verificado pelo Supabase e trata sessão ausente sem acessar claims nulos.
 - Adiciona bloqueio de acesso para contas sem perfil ativo.

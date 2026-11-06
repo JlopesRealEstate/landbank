@@ -116,7 +116,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
               {
                 label: "Área do terreno",
                 value: `${num(area.landAreaM2)} m²`,
-                hint: `${num(area.landAreaM2 / 10_000, 2)} ha · ${num(area.landAreaM2 / ALQUEIRE_PAULISTA_M2, 2)} alq`,
+                hint: `${num(area.landAreaM2 / ALQUEIRE_PAULISTA_M2, 2)} alq · ${num(area.landAreaM2 / 10_000, 2)} ha`,
               },
               { label: "Área construída", value: area.builtAreaM2 ? `${num(area.builtAreaM2)} m²` : "—", hint: `${num(occupancy)}% do terreno` },
               { label: "Valor por m²", value: brl(area.pricePerM2), hint: intel.benchmark > 0 ? `benchmark ${brl(intel.benchmark)}` : "benchmark pendente de aferição" },
@@ -211,14 +211,11 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
                 { label: "Curvas (KMZ / entorno)", value: `${num(stats.insideContours ?? 0)} / ${num(stats.aroundContours ?? 0)}` },
                 {
                   label: "Área do KMZ",
-                  value: `${num(stats.geodesicAreaM2 ?? 0)} m² · ${num((stats.geodesicAreaM2 ?? 0) / 10_000, 2)} ha · ${num(
-                    (stats.geodesicAreaM2 ?? 0) / ALQUEIRE_PAULISTA_M2,
-                    2,
-                  )} alq`,
+                  value: `${num(stats.geodesicAreaM2 ?? 0)} m² · ${num((stats.geodesicAreaM2 ?? 0) / ALQUEIRE_PAULISTA_M2, 2)} alq · ${num((stats.geodesicAreaM2 ?? 0) / 10_000, 2)} ha`,
                 },
                 {
                   label: "Área estudada",
-                  value: `${num(stats.studiedAreaM2 ?? 0)} m² · ${num((stats.studiedAreaM2 ?? 0) / ALQUEIRE_PAULISTA_M2, 2)} alq`,
+                  value: `${num(stats.studiedAreaM2 ?? 0)} m² · ${num((stats.studiedAreaM2 ?? 0) / ALQUEIRE_PAULISTA_M2, 2)} alq · ${num((stats.studiedAreaM2 ?? 0) / 10_000, 2)} ha`,
                 },
                 { label: "Cota de projeto", value: `${num(grading.targetElevation, 2)} m` },
                 { label: "Corte", value: `${num(grading.cutVolumeM3)} m³` },

@@ -220,7 +220,7 @@ export function CityIndicators({ city, point }: { city: City; point?: { lat: num
           { label: "PIB per capita", value: orDash(city.gdpPerCapita ? brl(city.gdpPerCapita) : "—"), hint: "IBGE Cidades" },
           { label: "Densidade", value: orDash(city.areaKm2 ? `${num(density)} hab/km²` : "—"), hint: city.areaKm2 ? `${num(city.areaKm2)} km²` : "área territorial n/d" },
           { label: "Urbanização", value: orDash(city.urbanization ? `${num(city.urbanization)}%` : "—"), hint: "grau de urbanização" },
-          { label: "Benchmark solo", value: orDash(city.marketPriceM2 ? `${brl(city.marketPriceM2)}/m²` : "—"), hint: "referência Land Bank" },
+          { label: "Benchmark solo", value: "Pendente de aferição", hint: "aguarda comparáveis auditáveis" },
         ].map((item) => (
           <div key={item.label} className="rounded-xl border border-line bg-paper/60 p-3">
             <p className="text-[9px] font-semibold uppercase tracking-[0.12em] text-muted">{item.label}</p>

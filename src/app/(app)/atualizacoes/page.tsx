@@ -1,6 +1,20 @@
-import { BellRing, CheckCircle2, FileUp, Map, ShieldCheck, Sparkles } from "lucide-react";
+import { BellRing, CheckCircle2, FileUp, Map, ShieldCheck, Sparkles, Mountain, Layers, KeyRound, FileCheck } from "lucide-react";
+import { CRM_VERSION, CRM_RELEASE_DATE } from "@/lib/version";
 
 const releases = [
+  {
+    version: CRM_VERSION,
+    date: "05/11/2026",
+    title: "Segurança, mapas e relatórios técnicos",
+    items: [
+      { icon: ShieldCheck, title: "Controle de acesso por perfil", detail: "Login obrigatório, lista de usuários autorizados, perfis de administrador, editor e somente leitura, convites e revogação de acesso." },
+      { icon: KeyRound, title: "Convites e senha individual", detail: "Cada colaborador recebe convite por e-mail e define sua própria senha. Nenhuma senha compartilhada pelo administrador." },
+      { icon: FileUp, title: "Correção de autenticação no upload", detail: "Validação de usuário com tratamento seguro para sessão ausente, evitando leitura de claims nulos." },
+      { icon: Layers, title: "Camada Restrições no mapa", detail: "Ative curvas de nível e polígonos de APP, linhão, dutos e demais perdas do imóvel selecionado." },
+      { icon: Mountain, title: "Curvas de 1 metro no PDF", detail: "Geração cartográfica a partir da grade MDE existente, com identificação da limitação da fonte de elevação." },
+      { icon: FileCheck, title: "Relatório sem seção topográfica duplicada", detail: "Remoção do bloco repetido de análise e gráfico de perfil." },
+    ],
+  },
   {
     version: "1.2.0",
     date: "05/11/2026",
@@ -28,7 +42,7 @@ export default function UpdatesPage() {
         <div className="flex items-center gap-2 text-lime"><BellRing className="h-5 w-5" /><span className="text-xs font-semibold uppercase tracking-[0.18em]">Central de novidades</span></div>
         <h1 className="mt-3 text-2xl font-semibold">Atualizações do CRM</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">Veja o que mudou, para que serve cada melhoria e como usar os recursos do Land Bank Corp.</p>
-        <div className="mt-4 inline-flex rounded-full bg-white/10 px-3 py-1.5 text-xs">Versão atual: 1.2.0</div>
+        <div className="mt-4 inline-flex rounded-full bg-white/10 px-3 py-1.5 text-xs">Versão atual: {CRM_VERSION}</div>
       </header>
       <div className="space-y-5">
         {releases.map((release) => (
@@ -46,7 +60,7 @@ export default function UpdatesPage() {
           </section>
         ))}
       </div>
-      <p className="flex items-center gap-2 text-xs text-muted"><CheckCircle2 className="h-4 w-4 text-leaf" />As novidades serão registradas aqui a cada publicação relevante.</p>
+      <p className="flex items-center gap-2 text-xs text-muted"><CheckCircle2 className="h-4 w-4 text-leaf" />Versão {CRM_VERSION} · release de {new Date(CRM_RELEASE_DATE + "T12:00:00").toLocaleDateString("pt-BR")} · cada release deve registrar versão, data, commit e resumo técnico.</p>
     </div>
   );
 }

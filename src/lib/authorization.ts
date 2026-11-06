@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 
 /** Authorization enforced on the server; UI visibility is not a security boundary. */
 export async function requireAdmin(): Promise<{ userId: string } | { response: Response }> {
-  const supabase = await createClient();
+  const supabase = await createClient() as any;
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) return { response: Response.json({ ok: false, error: "Autenticação necessária." }, { status: 401 }) };
   const { data: role, error: roleError } = await supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle();

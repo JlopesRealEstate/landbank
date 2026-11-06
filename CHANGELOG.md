@@ -1,5 +1,11 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.3.2 — 06/11/2026
+- A tela de Controle de Acessos redireciona para login quando a sessão expira e preserva a rota de retorno.
+- Requisições administrativas enviam explicitamente cookies same-origin e distinguem sessão expirada de perfil sem permissão.
+- Inclui ações Login e Logoff na navegação; o Logoff encerra sessões Supabase globalmente e retorna à tela de login.
+
+
 ## 1.3.1 — 05/11/2026
 - Corrige a recuperação de senha para redirecionar explicitamente ao domínio de produção e ao callback PKCE.
 - Adiciona ação Esqueci minha senha à tela de login e orienta o usuário a solicitar um link novo.

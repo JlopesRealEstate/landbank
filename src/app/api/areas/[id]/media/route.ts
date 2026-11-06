@@ -46,6 +46,17 @@ export async function POST(request: Request, { params }: Params) {
     const payload = await request.json().catch(() => null) as { items?: Array<{ kind?: string; category?: string; name?: string; mimeType?: string; size?: number; storagePath?: string; caption?: string }> } | null;
     if (!payload || !Array.isArray(payload.items) || !payload.items.length) return Response.json({ ok: false, error: "Nenhum arquivo informado." }, { status: 400 });
 
+    const photoItems = payload.items.filter((item) => item.kind !== "document");
+    if (photoItems.length > 0) {
+      const { count, error: countError } = await supabase.from("media")
+        .select("id", { count: "exact", head: true })
+        .eq("area_id", areaId).eq("kind", "photo");
+      if (countError) throw countError;
+      if ((count ?? 0) + photoItems.length > 100) {
+        return Response.json({ ok: false, error: `Limite de 100 fotos por imóvel. Já existem ${count ?? 0}; disponíveis: ${Math.max(0, 100 - (count ?? 0))}.` }, { status: 409 });
+      }
+    }
+
     const inserted: number[] = [];
     for (const item of payload.items) {
       const name = safeFileName(typeof item.name === "string" ? item.name : "arquivo");

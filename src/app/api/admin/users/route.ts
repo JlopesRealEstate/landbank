@@ -102,6 +102,15 @@ export async function PATCH(request: Request) {
     if (userId === context.user.id && role !== "admin") {
       return Response.json({ ok: false, error: "Não é permitido remover seu próprio perfil administrador." }, { status: 409 });
     }
+    const { data: currentRole } = await context.admin.from("user_roles").select("role").eq("user_id", userId).maybeSingle();
+    if (currentRole?.role === "admin" && role !== "admin") {
+      const { count, error: countError } = await context.admin.from("user_roles")
+        .select("user_id", { count: "exact", head: true }).eq("role", "admin");
+      if (countError) throw countError;
+      if ((count ?? 0) <= 1) {
+        return Response.json({ ok: false, error: "O CRM precisa manter pelo menos um administrador ativo." }, { status: 409 });
+      }
+    }
     if (role === "sem_acesso") {
       const { error } = await context.admin.from("user_roles").delete().eq("user_id", userId);
       if (error) throw error;

@@ -301,14 +301,14 @@ export function PresentationView({
             <Card className="p-4 sm:p-5">
               <h2 className="text-base font-semibold">Por que este ativo se destaca</h2>
               <ul className="mt-2 grid gap-2 sm:grid-cols-2">
-                {intel.insights.map((insight) => (
+                {intel.insights.filter((insight) => !/benchmark|preço.*acima|preço.*abaixo|preço alinhado/i.test(insight)).map((insight) => (
                   <li key={insight} className="rounded-lg bg-paper/60 p-2.5 text-[11px] leading-relaxed text-ink-soft">
                     {insight}
                   </li>
                 ))}
               </ul>
               <div className="mt-4 space-y-2">
-                {intel.pillars.slice(0, 4).map((pillar) => (
+                {intel.pillars.filter((pillar) => pillar.key !== "preco").slice(0, 3).map((pillar) => (
                   <div key={pillar.key}>
                     <div className="flex justify-between text-[10px]">
                       <span className="text-ink-soft">{pillar.label}</span>

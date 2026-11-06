@@ -1,5 +1,14 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.3.9 — 06/11/2026
+- Corrige o menu da conta: ações de senha/login em grade e botão de saída em largura total, sem corte.
+- Corrige o rodapé do menu mobile, passando a receber o perfil administrativo corretamente e permitindo rolagem.
+- Carrega metadados de fotos e documentos diretamente da tabela oficial `media` do projeto Supabase, evitando divergência da conexão Drizzle.
+- Recupera arquivos privados com chave administrativa apenas no servidor, após validar sessão e perfil autorizado.
+- Mantém bucket privado e permite leitura a administradores, membros e leitores autenticados.
+- Adiciona fallback visual quando uma foto de capa não puder ser carregada.
+
+
 ## 1.3.8 — 06/11/2026
 - Define administradores como únicos usuários autorizados a cadastrar, editar, excluir imóveis e enviar arquivos.
 - Perfis `member` e `reader` passam a operar em modo somente leitura, mantendo consulta integral e geração de fichas PDF.

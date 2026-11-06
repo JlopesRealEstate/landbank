@@ -119,7 +119,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
                 hint: `${num(area.landAreaM2 / 10_000, 2)} ha · ${num(area.landAreaM2 / ALQUEIRE_PAULISTA_M2, 2)} alq`,
               },
               { label: "Área construída", value: area.builtAreaM2 ? `${num(area.builtAreaM2)} m²` : "—", hint: `${num(occupancy)}% do terreno` },
-              { label: "Valor por m²", value: brl(area.pricePerM2), hint: `benchmark ${brl(intel.benchmark)}` },
+              { label: "Valor por m²", value: brl(area.pricePerM2), hint: intel.benchmark > 0 ? `benchmark ${brl(intel.benchmark)}` : "benchmark pendente de aferição" },
               { label: "Valor total", value: brl(area.totalPrice), hint: `${brl(intel.pricePerHa)}/ha` },
             ].map((item) => (
               <div key={item.label} className="rounded-md border border-line bg-paper/50 px-2 py-1.5">
@@ -405,7 +405,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
                 { label: "IDHM", value: city.idhm ? city.idhm.toFixed(3) : "—" },
                 { label: "PIB per capita", value: city.gdpPerCapita ? brl(city.gdpPerCapita) : "—" },
                 { label: "Potencial de consumo", value: city.consumptionPotential ? brl(city.consumptionPotential, { compact: true }) : "—" },
-                { label: "Benchmark de solo", value: city.marketPriceM2 ? `${brl(city.marketPriceM2)}/m²` : "—" },
+                { label: "Benchmark de solo", value: "Pendente de aferição" },
               ].map((item) => (
                 <div key={item.label} className="rounded-md border border-line bg-paper/40 px-1.5 py-1">
                   <p className="text-[7px] font-semibold uppercase tracking-[0.06em] text-muted">{item.label}</p>
@@ -415,8 +415,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
             </div>
             <p className="mt-1 text-[7px] text-muted">
               Fonte: IBGE Censo 2022 (população e renda) / CEMPRE 2023 (salário formal em salários mínimos × piso SP de R$ 1.874,36) /
-              PIB municipal / PNUD (IDHM). Benchmark de solo Land Bank Corp:{" "}
-              {city.marketPriceM2 ? `${brl(city.marketPriceM2)}/m²` : "em atualização"}.
+              PIB municipal / PNUD (IDHM). Benchmark de solo Land Bank Corp: pendente de comparáveis auditáveis; valores indicativos anteriores não devem orientar a negociação.
             </p>
           </section>
         ) : null}

@@ -17,8 +17,8 @@ export async function POST(request: Request, { params }: Params) {
     // Gera o token no servidor, onde a sessão SSR é validada pelos cookies.
     // O navegador não precisa executar INSERT em storage.objects diretamente.
     const supabase = await createClient() as any;
-    const { data: { claims }, error: authError } = await supabase.auth.getClaims();
-    const userId = typeof claims?.sub === "string" ? claims.sub : null;
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const userId = authData?.user?.id ?? null;
     if (authError || !userId) {
       return Response.json({ ok: false, error: "Sessão expirada. Entre novamente no CRM." }, { status: 401 });
     }

@@ -49,7 +49,7 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isLoginPage = pathname === "/login";
   const isDeniedPage = pathname === "/acesso-negado";
-  const isAuthRoute = pathname.startsWith("/auth");
+  const isAuthRoute = pathname.startsWith("/auth") || pathname === "/definir-senha";
   const isPublicPresentation = pathname.startsWith("/apresentacao/");
 
   let authorized = false;

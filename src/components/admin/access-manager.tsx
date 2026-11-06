@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Loader2, MailPlus, RefreshCw, ShieldCheck, UserRound, Users } from "lucide-react";
 
 type AccessUser = { id: string; email: string; role: string; lastSignInAt: string | null; createdAt: string };
@@ -31,7 +31,7 @@ export function AccessManager() {
 
   useEffect(() => { void load(); }, [load]);
 
-  async function invite(event: React.FormEvent<HTMLFormElement>) {
+  async function invite(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
     setMessage(null);

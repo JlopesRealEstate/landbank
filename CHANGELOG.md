@@ -1,5 +1,12 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.4.1 — 06/11/2026
+- Corrige a leitura dos metadados de fotos privadas: após validar sessão e perfil autorizado, a rota `/api/media/[id]` consulta a tabela `media` pelo cliente administrativo server-only, evitando bloqueio indevido por RLS na consulta de sessão.
+- O download do objeto continua no bucket privado `landbank-files`; nenhuma foto foi tornada pública.
+- Menu desktop e drawer mobile passam a separar navegação rolável do rodapé fixo, mantendo ações de conta e Logoff visíveis.
+- Publicação pendente de confirmação de build e deploy da Vercel.
+
+
 ## 1.4.0 — 06/11/2026
 - Commit de referência da versão: `30aa4ec` (versão e metadados do release).
 - Situação: registrada no código-fonte; ainda não publicada em produção devido ao limite temporário de deploy da Vercel.

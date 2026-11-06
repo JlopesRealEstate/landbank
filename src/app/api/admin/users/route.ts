@@ -68,7 +68,7 @@ export async function POST(request: Request) {
 
     const { data: invited, error: inviteError } = await context.admin.auth.admin.inviteUserByEmail(email, {
       data: fullName ? { full_name: fullName } : {},
-      redirectTo: new URL("/login", request.url).toString(),
+      redirectTo: new URL("/auth/callback?next=/definir-senha", request.url).toString(),
     });
     if (inviteError) throw inviteError;
     if (!invited.user?.id) throw new Error("O Supabase não retornou o identificador do usuário convidado.");

@@ -198,9 +198,9 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
                 restrictions={restrictions.map((item) => ({ id: item.id, type: item.type, label: item.label || item.type, coordinates: item.coordinates }))}
                 heatmap={view.heatmapMode === "cutfill" ? terrain?.cutFillHeatmap ?? null : terrain?.heatmap ?? null}
                 snapshot={snapshot}
-                showContours={view.contours}
+                showContours={true}
                 showHeatmap={false}
-                contourScope={view.contourScope}
+                contourScope="inside"
               />
             </div>
             <p className="mt-1 text-[7px] text-muted">

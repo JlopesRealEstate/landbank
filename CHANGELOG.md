@@ -4,6 +4,7 @@
 - Corrige a leitura dos metadados de fotos privadas: após validar sessão e perfil autorizado, a rota `/api/media/[id]` consulta a tabela `media` pelo cliente administrativo server-only, evitando bloqueio indevido por RLS na consulta de sessão.
 - O download do objeto continua no bucket privado `landbank-files`; nenhuma foto foi tornada pública.
 - Menu desktop e drawer mobile passam a separar navegação rolável do rodapé fixo, mantendo ações de conta e Logoff visíveis.
+- O acesso privado exige `SUPABASE_SECRET_KEY_V2` preenchida no ambiente Production da Vercel; a listagem continua funcional com metadados do banco enquanto essa chave é corrigida.
 - Publicação pendente de confirmação de build e deploy da Vercel.
 
 

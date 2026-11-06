@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getAuthorizedStorageClient } from "@/lib/supabase/storage-admin";
 
 export const dynamic = "force-dynamic";
 
@@ -10,9 +11,8 @@ export async function GET(request: Request, { params }: Params) {
   if (!Number.isInteger(mediaId)) return new Response("ID inválido", { status: 400 });
   try {
     const supabase = await createClient() as any;
-    const { data: authData, error: authError } = await supabase.auth.getUser();
-    const userId = authData?.user?.id ?? null;
-    if (authError || !userId) return new Response("Sessão não autenticada ou expirada. Entre novamente no CRM.", { status: 401 });
+    const access = await getAuthorizedStorageClient();
+    if ("error" in access) return new Response(access.error, { status: access.status });
 
     const { data: row, error } = await supabase.from("media")
       .select("name,mime_type,data,storage_path,external_url")
@@ -28,7 +28,7 @@ export async function GET(request: Request, { params }: Params) {
 
     let bytes: Uint8Array;
     if (row.storage_path) {
-      const { data: file, error: downloadError } = await supabase.storage.from(BUCKET).download(row.storage_path);
+      const { data: file, error: downloadError } = await access.storageClient.storage.from(BUCKET).download(row.storage_path);
       if (downloadError || !file) return new Response("Arquivo indisponível", { status: 404 });
       bytes = new Uint8Array(await file.arrayBuffer());
     } else if (row.data) {

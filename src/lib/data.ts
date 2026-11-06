@@ -1,6 +1,7 @@
 import "server-only";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
+import { createStorageAdminClient } from "@/lib/supabase/storage-admin";
 import { activities, areaRestrictions, areas, cities, media, terrainAnalyses } from "@/db/schema";
 import type { Activity, Area, City } from "@/db/schema";
 import { ensureDatabase } from "@/db/bootstrap";
@@ -42,11 +43,27 @@ function withUrl(row: Omit<MediaMeta, "url">): MediaMeta {
   return { ...row, url: row.externalUrl ?? `/api/media/${row.id}` };
 }
 
+async function getSupabaseMediaRows(areaId?: number): Promise<MediaMeta[]> {
+  const client = createStorageAdminClient();
+  let query = client.from("media")
+    .select("id,area_id,kind,category,name,mime_type,size,caption,external_url,sort_order,created_at")
+    .order("sort_order", { ascending: true }).order("id", { ascending: true });
+  if (areaId !== undefined) query = query.eq("area_id", areaId);
+  const { data, error } = await query;
+  if (error) throw new Error("Falha ao consultar mídia do Supabase: " + error.message);
+  return (data ?? []).map((row: any) => withUrl({
+    id: row.id, areaId: row.area_id, kind: row.kind, category: row.category,
+    name: row.name, mimeType: row.mime_type, size: row.size ?? 0,
+    caption: row.caption ?? "", externalUrl: row.external_url,
+    sortOrder: row.sort_order ?? 0, createdAt: new Date(row.created_at),
+  }));
+}
+
 export async function getAreas(options?: { includeArchived?: boolean }): Promise<AreaRecord[]> {
   await ensureDatabase();
   const [areaRows, mediaRows] = await Promise.all([
     db.select().from(areas).orderBy(desc(areas.featured), desc(areas.updatedAt)),
-    db.select(mediaMetaSelect).from(media).orderBy(asc(media.sortOrder), asc(media.id)),
+    getSupabaseMediaRows(),
   ]);
 
   const byArea = new Map<number, MediaMeta[]>();
@@ -179,16 +196,10 @@ export async function getAreaById(
   await ensureDatabase();
   const [area] = await db.select().from(areas).where(eq(areas.id, id)).limit(1);
   if (!area) return null;
-  const [mediaRows, activityRows] = await Promise.all([
-    db.select(mediaMetaSelect).from(media).where(eq(media.areaId, id)).orderBy(asc(media.sortOrder), asc(media.id)),
-    db
-      .select()
-      .from(activities)
-      .where(eq(activities.areaId, id))
-      .orderBy(desc(activities.createdAt))
-      .limit(20),
+  const [items, activityRows] = await Promise.all([
+    getSupabaseMediaRows(id),
+    db.select().from(activities).where(eq(activities.areaId, id)).orderBy(desc(activities.createdAt)).limit(20),
   ]);
-  const items = mediaRows.map(withUrl);
   const photos = items.filter((item) => item.kind === "photo");
   const cover = photos.find((photo) => photo.category === "capa") ?? photos[0];
   const cityRows = await db.select().from(cities).where(eq(cities.slug, area.citySlug)).limit(1);

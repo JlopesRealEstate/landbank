@@ -11,6 +11,7 @@ import {
   Copy,
   Expand,
   Globe2,
+  Layers,
   Mail,
   Map as MapIcon,
   Maximize2,
@@ -80,6 +81,10 @@ export function PortfolioWorkspace({
   const [isFull, setIsFull] = useState(false);
   const [copied, setCopied] = useState(false);
   const [streetView, setStreetView] = useState(false);
+  const [showRestrictionLayers, setShowRestrictionLayers] = useState(false);
+  const [overlayLoading, setOverlayLoading] = useState(false);
+  const [selectedContours, setSelectedContours] = useState<{ elevation: number; coordinates: [number, number][]; kind: string; inside?: boolean }[]>([]);
+  const [selectedRestrictions, setSelectedRestrictions] = useState<{ id: number; type: string; label: string; coordinates: [number, number][]; areaM2?: number; lossPct?: number }[]>([]);
   const shellRef = useRef<HTMLDivElement>(null);
 
   const filtered = useMemo(() => {
@@ -98,6 +103,34 @@ export function PortfolioWorkspace({
   const visibleIds = useMemo(() => new Set(filtered.map((area) => area.id)), [filtered]);
   const selected = areas.find((area) => area.id === selectedId) ?? null;
   const mapAreas = useMemo(() => filtered.map((area) => ({ ...area, score: area.score })), [filtered]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!selectedId) {
+      setSelectedContours([]);
+      setSelectedRestrictions([]);
+      setOverlayLoading(false);
+      return;
+    }
+    setOverlayLoading(true);
+    Promise.all([
+      fetch(`/api/areas/${selectedId}/terrain`, { cache: "no-store" }).then((response) => response.json()),
+      fetch(`/api/areas/${selectedId}/restrictions`, { cache: "no-store" }).then((response) => response.json()),
+    ]).then(([terrainData, restrictionData]) => {
+      if (cancelled) return;
+      setSelectedContours(terrainData?.ok ? (terrainData.analysis?.contours ?? []).filter((item: { inside?: boolean }) => item.inside !== false) : []);
+      setSelectedRestrictions(restrictionData?.ok ? (restrictionData.restrictions ?? []) : []);
+    }).catch((error) => {
+      console.error("[portfolio-map:overlays]", error);
+      if (!cancelled) {
+        setSelectedContours([]);
+        setSelectedRestrictions([]);
+      }
+    }).finally(() => {
+      if (!cancelled) setOverlayLoading(false);
+    });
+    return () => { cancelled = true; };
+  }, [selectedId]);
 
   useEffect(() => {
     const onChange = () => setIsFull(Boolean(document.fullscreenElement));
@@ -177,6 +210,19 @@ export function PortfolioWorkspace({
                 );
               })}
             </div>
+            <button
+              type="button"
+              onClick={() => setShowRestrictionLayers((value) => !value)}
+              disabled={!selected || overlayLoading}
+              aria-pressed={showRestrictionLayers}
+              className={cn(
+                "flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] font-medium transition disabled:cursor-not-allowed disabled:opacity-50",
+                showRestrictionLayers ? "border-[#8c2f43] bg-[#8c2f43] text-white" : "border-line bg-white text-ink hover:border-[#8c2f43] hover:text-[#8c2f43]",
+              )}
+              title={overlayLoading ? "Carregando camadas do imóvel selecionado" : "Projetar curvas de nível e restrições do imóvel selecionado"}
+            >
+              <Layers className="h-3 w-3" /> {overlayLoading ? "Carregando..." : "Restrições"}
+            </button>
             <button
               type="button"
               onClick={() => setStreetView(true)}
@@ -271,8 +317,15 @@ export function PortfolioWorkspace({
             <MapCanvas
               areas={mapAreas}
               selectedId={selectedId}
-              onSelect={(id) => setSelectedId(id)}
+              onSelect={(id) => {
+                setSelectedId(id);
+                setShowRestrictionLayers(false);
+              }}
               basemap={basemap}
+              contours={showRestrictionLayers ? selectedContours : []}
+              showContours={showRestrictionLayers}
+              contourScope="inside"
+              restrictions={showRestrictionLayers ? selectedRestrictions : []}
               fitToAreas
               className="h-full w-full"
             />

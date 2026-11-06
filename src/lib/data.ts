@@ -1,7 +1,7 @@
 import "server-only";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
-import { createStorageAdminClient } from "@/lib/supabase/storage-admin";
+import { createClient } from "@/lib/supabase/server";
 import { activities, areaRestrictions, areas, cities, media, terrainAnalyses } from "@/db/schema";
 import type { Activity, Area, City } from "@/db/schema";
 import { ensureDatabase } from "@/db/bootstrap";
@@ -45,7 +45,9 @@ function withUrl(row: Omit<MediaMeta, "url">): MediaMeta {
 
 async function getSupabaseMediaRows(areaId?: number): Promise<MediaMeta[]> {
   try {
-    const client = createStorageAdminClient();
+    const client = await createClient();
+    const { data: { user }, error: authError } = await client.auth.getUser();
+    if (authError || !user) return [];
     let query = client.from("media")
       .select("id,area_id,kind,category,name,mime_type,size,caption,external_url,sort_order,created_at")
       .order("sort_order", { ascending: true }).order("id", { ascending: true });
@@ -58,13 +60,10 @@ async function getSupabaseMediaRows(areaId?: number): Promise<MediaMeta[]> {
       caption: row.caption ?? "", externalUrl: row.external_url,
       sortOrder: row.sort_order ?? 0, createdAt: new Date(row.created_at),
     }));
-  } catch (storageError) {
-    // The relational database can still supply metadata while the Storage secret is being repaired.
-    console.error("[media:metadata-fallback]", storageError);
-    const fallbackRows = areaId === undefined
-      ? await db.select(mediaMetaSelect).from(media).orderBy(asc(media.sortOrder), asc(media.id))
-      : await db.select(mediaMetaSelect).from(media).where(eq(media.areaId, areaId)).orderBy(asc(media.sortOrder), asc(media.id));
-    return fallbackRows.map(withUrl);
+  } catch (mediaError) {
+    // Never mix media metadata from a different Postgres project as a fallback.
+    console.error("[media:metadata]", mediaError);
+    return [];
   }
 }
 

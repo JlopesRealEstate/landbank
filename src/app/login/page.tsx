@@ -13,17 +13,27 @@ export default function LoginPage() {
   const [busy, setBusy] = useState(false);
   const [resetBusy, setResetBusy] = useState(false);
   const [notice, setNotice] = useState("");
+  const [resetCooldown, setResetCooldown] = useState(false);
   const [error, setError] = useState("");
 
   async function handlePasswordReset() {
     if (!email.trim()) { setError("Informe seu e-mail para receber o link de redefinição."); return; }
+    if (resetCooldown) { setError("Aguarde antes de solicitar outro e-mail. O Supabase aplicou um limite de envio."); return; }
     setResetBusy(true); setError(""); setNotice("");
     try {
       const supabase = createClient();
       const redirectTo = "https://landbank-mu.vercel.app/auth/confirm?next=%2Fdefinir-senha";
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
-      if (resetError) throw resetError;
-      setNotice("Se o e-mail estiver cadastrado, enviaremos um link seguro para redefinir a senha. Use sempre o link mais recente.");
+      if (resetError) {
+        const message = resetError.message || "";
+        if (/rate.?limit|email rate limit|too many requests/i.test(message)) {
+          setResetCooldown(true);
+          setError("O Supabase bloqueou temporariamente novos e-mails porque houve muitas tentativas. Não solicite novamente agora. Aguarde a liberação ou configure um provedor SMTP próprio no Supabase.");
+        } else setError(message || "Não foi possível solicitar a redefinição.");
+        return;
+      }
+      setResetCooldown(true);
+      setNotice("Solicitação recebida. Verifique sua caixa de entrada e spam. Use apenas o e-mail mais recente.");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Não foi possível solicitar a redefinição.");
     } finally { setResetBusy(false); }
@@ -61,7 +71,7 @@ export default function LoginPage() {
           </label>
           {error && <p role="alert" className="rounded-lg border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
           <button disabled={busy || resetBusy} className="w-full rounded-lg bg-amber-400 px-4 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:opacity-60">{busy ? "Entrando..." : "Entrar"}</button>
-          <button type="button" disabled={busy || resetBusy} onClick={() => void handlePasswordReset()} className="w-full rounded-lg border border-white/15 px-4 py-3 text-sm text-white/80 hover:border-amber-400 disabled:opacity-60">{resetBusy ? "Enviando..." : "Esqueci minha senha"}</button>
+          <button type="button" disabled={busy || resetBusy} onClick={() => void handlePasswordReset()} className="w-full rounded-lg border border-white/15 px-4 py-3 text-sm text-white/80 hover:border-amber-400 disabled:opacity-60">{resetBusy ? "Enviando..." : resetCooldown ? "Solicitação enviada / aguarde" : "Esqueci minha senha"}</button>
           {notice ? <p role="status" className="rounded-lg border border-green-400/30 bg-green-400/10 p-3 text-sm text-green-200">{notice}</p> : null}
         </form>
         <p className="mt-6 text-xs leading-5 text-white/40">Novas contas são liberadas exclusivamente por convite de um administrador do Land Bank Corp. O cadastro público não é permitido.</p>

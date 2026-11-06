@@ -420,33 +420,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
           </section>
         ) : null}
 
-        <section className="mt-3 break-inside-avoid">
-            <p className="text-[8px] font-semibold uppercase tracking-[0.12em] text-muted">
-              Foto técnica do imóvel — satélite, curvas de nível (0,5 m) e mapa de calor (40%)
-            </p>
-            <div className="mt-1">
-              <PropertyPhotoOverlay
-                imageSrc={propertyPhoto.dataUrl}
-                bounds={propertyPhoto.bounds}
-                geometry={area.geometry.map((ring) => ({ coordinates: ring.coordinates }))}
-                contours={fichaContours}
-                heatmap={view.heatmapMode === "cutfill" ? terrain?.cutFillHeatmap ?? null : terrain?.heatmap ?? null}
-                restrictions={restrictions.map((item) => ({
-                  id: item.id,
-                  type: item.type,
-                  label: item.label,
-                  coordinates: item.coordinates,
-                }))}
-                heatmapOpacity={40}
-                caption={`${area.code} — ${area.city}`}
-              />
-            </div>
-            <p className="mt-1 text-[7px] text-muted">
-              Coordenadas {area.lat.toFixed(5)}, {area.lng.toFixed(5)} · {area.geometry.length} polígono(s) ·{" "}
-              {terrain?.source ?? "sem análise topográfica"} · visualização salva ({view.basemap}, zoom {view.zoom})
-            </p>
-          </section>
-        ) : null}
+
 
         {terrain && stats && grading ? (
           <section className="mt-3 rounded-lg border border-[#e3c2c9] bg-[#f6e8eb]/25 p-2.5">

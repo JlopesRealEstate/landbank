@@ -1,5 +1,11 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.3.6 — 06/11/2026
+- A tela de recuperação identifica `email rate limit exceeded`, informa bloqueio temporário e evita tentativas repetidas no mesmo carregamento.
+- Mantém redirecionamento para `/auth/confirm?next=/definir-senha`.
+- Templates de e-mail do Supabase devem usar `{{ .TokenHash }}` com `/auth/confirm`; a alteração desses modelos é feita no painel Supabase, não no repositório.
+
+
 ## 1.3.5 — 06/11/2026
 - Adiciona endpoint `/auth/confirm` com `verifyOtp(token_hash)` para recuperação e convites, sem depender do cookie PKCE do navegador que solicitou o e-mail.
 - Persiste explicitamente os cookies de sessão na resposta de confirmação.

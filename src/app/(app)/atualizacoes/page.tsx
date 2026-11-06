@@ -3,6 +3,16 @@ import { CRM_VERSION, CRM_RELEASE_DATE } from "@/lib/version";
 
 const releases = [
   {
+    version: "1.4.2",
+    date: "06/11/2026",
+    title: "Fotos privadas sem chave administrativa",
+    items: [
+      { icon: FileUp, title: "Leitura pela sessão autenticada", detail: "O servidor valida o usuário e seu perfil e usa a própria sessão Supabase para consultar metadados e baixar arquivos. Não depende da variável vazia SUPABASE_SECRET_KEY_V2." },
+      { icon: ShieldCheck, title: "Bucket permanece privado", detail: "As políticas RLS existentes autorizam admin, member e reader. Não há publicação das fotos nem exposição de chave privilegiada no navegador." },
+      { icon: CheckCircle2, title: "Origem única dos metadados", detail: "A consulta usa o projeto Supabase atual, evitando misturar metadados de outro banco Postgres." },
+    ],
+  },
+  {
     version: "1.4.1",
     date: "06/11/2026",
     title: "Fotos privadas e rodapé fixo do menu",

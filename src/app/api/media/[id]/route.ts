@@ -10,11 +10,11 @@ export async function GET(request: Request, { params }: Params) {
   const mediaId = Number((await params).id);
   if (!Number.isInteger(mediaId)) return new Response("ID inválido", { status: 400 });
   try {
-    const supabase = await createClient() as any;
     const access = await getAuthorizedStorageClient();
     if ("error" in access) return new Response(access.error, { status: access.status });
 
-    const { data: row, error } = await supabase.from("media")
+    // Validate session and role first, then read private metadata using the server-only client.
+    const { data: row, error } = await access.storageClient.from("media")
       .select("name,mime_type,data,storage_path,external_url")
       .eq("id", mediaId).maybeSingle();
     if (error) throw error;

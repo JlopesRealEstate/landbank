@@ -3,6 +3,7 @@
 ## 1.3.0 — 05/11/2026
 - Corrige validação de autenticação nos endpoints de upload: usa usuário verificado pelo Supabase e trata sessão ausente sem acessar claims nulos.
 - Adiciona bloqueio de acesso para contas sem perfil ativo.
+- Aplica políticas RLS restritivas em todas as tabelas públicas e no Storage: contas sem perfil não leem dados; leitores não gravam; administradores preservam a gestão.
 - Adiciona painel administrativo para convite, alteração de perfil e revogação de acesso.
 - Adiciona callback PKCE e definição individual de senha para usuários convidados.
 - Recolhe por padrão o quadro Restrições e perda de área.
@@ -10,6 +11,7 @@
 - Exporta curvas de nível em equidistância cartográfica de 1 m no PDF quando a grade MDE está disponível.
 - Remove seção topográfica duplicada do PDF.
 - Centraliza versão do CRM e histórico de releases.
+- Registra e aplica as migrações Supabase 005 e 006 para Storage privado por perfil e bloqueio de acesso direto às tabelas sem autorização.
 
 ## 1.2.0 — 05/11/2026
 - Dossiê digital, uploads privados e mapas de demarcação.

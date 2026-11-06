@@ -16,10 +16,10 @@ async function getAdminContext() {
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  // Prefer the current Supabase secret key; retain legacy service-role fallback.
-  const adminKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Prefer the rotated key name; retain existing variables as safe migration fallbacks.
+  const adminKey = process.env.SUPABASE_SECRET_KEY_V2 || process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !adminKey) {
-    return { error: Response.json({ ok: false, error: "A chave administrativa do Supabase não está configurada no servidor. Configure SUPABASE_SECRET_KEY na Vercel." }, { status: 503 }) };
+    return { error: Response.json({ ok: false, error: "A chave administrativa do Supabase não está configurada no servidor. Configure SUPABASE_SECRET_KEY_V2 na Vercel." }, { status: 503 }) };
   }
   const admin = createSupabaseAdminClient(url, adminKey, {
     auth: { autoRefreshToken: false, persistSession: false },

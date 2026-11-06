@@ -110,16 +110,16 @@ function AuthActions() {
         <p className="text-[9px] font-semibold uppercase tracking-wider text-white/45">Conta conectada</p>
         <p className="mt-0.5 truncate text-xs font-medium text-white" title={email ?? "Sessão não identificada"}>{email ?? "Sessão não identificada"}</p>
       </div>
-      <div className="flex gap-2">
-      <Link href="/definir-senha" className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-medium text-white/70 hover:bg-white/10">
-        <KeyRound className="h-3.5 w-3.5" /> Senha
-      </Link>
-      <Link href="/login" className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-medium text-white/70 hover:bg-white/10">
-        <LogIn className="h-3.5 w-3.5" /> Login
-      </Link>
-      <button type="button" onClick={() => void signOut()} disabled={busy} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15 disabled:opacity-50">
-        <LogOut className="h-3.5 w-3.5" /> {busy ? "Saindo..." : "Logoff"}
-      </button>
+      <div className="grid grid-cols-2 gap-2">
+        <Link href="/definir-senha" className="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-white/15 px-2.5 py-2.5 text-xs font-medium text-white/80 hover:bg-white/10">
+          <KeyRound className="h-3.5 w-3.5 shrink-0" /> <span>Senha</span>
+        </Link>
+        <Link href="/login" className="inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-white/15 px-2.5 py-2.5 text-xs font-medium text-white/80 hover:bg-white/10">
+          <LogIn className="h-3.5 w-3.5 shrink-0" /> <span>Login</span>
+        </Link>
+        <button type="button" onClick={() => void signOut()} disabled={busy} className="col-span-2 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-50">
+          <LogOut className="h-3.5 w-3.5 shrink-0" /> {busy ? "Encerrando sessão..." : "Sair do CRM"}
+        </button>
       </div>
     </div>
   );
@@ -236,7 +236,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               className="absolute inset-0 bg-ink/50 backdrop-blur-sm"
               onClick={() => setOpen(false)}
             />
-            <div className="absolute inset-y-0 left-0 flex w-[280px] flex-col justify-between bg-forest px-4 py-5">
+            <div className="absolute inset-y-0 left-0 flex w-[min(88vw,320px)] flex-col justify-between gap-6 overflow-y-auto bg-forest px-4 py-5">
               <div>
                 <div className="flex items-center justify-between">
                   <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
@@ -254,7 +254,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <NavLinks isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
                 </div>
               </div>
-              <SidebarFooter />
+              <SidebarFooter isAdmin={isAdmin} />
             </div>
           </div>
         ) : null}

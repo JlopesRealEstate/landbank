@@ -2,6 +2,7 @@ import { BellRing, CheckCircle2, FileUp, Map, ShieldCheck, Sparkles, Mountain, L
 import { CRM_VERSION, CRM_RELEASE_DATE } from "@/lib/version";
 
 const releases = [
+  { version: "1.3.1", date: "05/11/2026", title: "Recuperação de senha", items: [{ icon: KeyRound, title: "Link de redefinição corrigido", detail: "O e-mail agora aponta para o domínio de produção, passa pelo callback PKCE e abre a tela para definir uma nova senha." }] },
   {
     version: CRM_VERSION,
     date: "05/11/2026",

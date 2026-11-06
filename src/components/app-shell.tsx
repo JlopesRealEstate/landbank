@@ -21,7 +21,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { FileBarChart, Archive, BellRing } from "lucide-react";
+import { FileBarChart, Archive } from "lucide-react";
 import { BrandMark, cn } from "@/components/ui";
 import { CRM_VERSION } from "@/lib/version";
 import { createClient } from "@/lib/supabase/client";
@@ -117,6 +117,7 @@ function AuthActions() {
 function SidebarFooter() {
   return (
     <div className="space-y-3">
+      <AuthActions />
       <Link
         href="/areas/nova"
         className="flex items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/15 transition hover:bg-white/15"

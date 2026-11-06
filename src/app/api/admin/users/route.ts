@@ -9,7 +9,7 @@ async function getAdminContext() {
   const user = authData?.user ?? null;
   if (authError || !user) return { error: Response.json({ ok: false, error: "Autenticação necessária." }, { status: 401 }) };
 
-  const { data: role, error: roleError } = await sessionClient
+  const { data: role, error: roleError } = await (sessionClient as any)
     .from("user_roles").select("role").eq("user_id", user.id).maybeSingle();
   if (roleError || role?.role !== "admin") {
     return { error: Response.json({ ok: false, error: "Somente administradores podem gerenciar acessos." }, { status: 403 }) };

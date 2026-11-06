@@ -6,6 +6,8 @@ import { useEffect, useState, type ReactNode } from "react";
 import {
   BarChart3,
   BookOpen,
+  Bell,
+  KeyRound,
   ChevronRight,
   Database,
   Layers,
@@ -33,7 +35,6 @@ const NAV = [
   { href: "/relatorios", label: "Relatórios", icon: FileBarChart, hint: "KPIs e PDF" },
   { href: "/consultas", label: "Consultas", icon: Archive, hint: "Vendidos e cancelados" },
   { href: "/documentacao", label: "Documentação", icon: BookOpen, hint: "Manual e ajuda" },
-  { href: "/atualizacoes", label: "Atualizações do CRM", icon: BellRing, hint: "Novidades e melhorias" },
   { href: "/acessos", label: "Controle de acessos", icon: ShieldCheck, hint: "Usuários e permissões" },
 ];
 
@@ -66,6 +67,18 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 
 function AuthActions() {
   const [busy, setBusy] = useState(false);
+  const [email, setEmail] = useState<string | null>(null);
+  useEffect(() => {
+    const supabase = createClient();
+    let mounted = true;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (mounted) setEmail(data.user?.email ?? null);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) setEmail(session?.user?.email ?? null);
+    });
+    return () => { mounted = false; listener.subscription.unsubscribe(); };
+  }, []);
   async function signOut() {
     if (busy) return;
     setBusy(true);
@@ -81,13 +94,22 @@ function AuthActions() {
     }
   }
   return (
-    <div className="flex gap-2">
+    <div className="space-y-2">
+      <div className="rounded-lg bg-white/5 px-3 py-2">
+        <p className="text-[9px] font-semibold uppercase tracking-wider text-white/45">Conta conectada</p>
+        <p className="mt-0.5 truncate text-xs font-medium text-white" title={email ?? "Sessão não identificada"}>{email ?? "Sessão não identificada"}</p>
+      </div>
+      <div className="flex gap-2">
+      <Link href="/definir-senha" className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-medium text-white/70 hover:bg-white/10">
+        <KeyRound className="h-3.5 w-3.5" /> Senha
+      </Link>
       <Link href="/login" className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-medium text-white/70 hover:bg-white/10">
         <LogIn className="h-3.5 w-3.5" /> Login
       </Link>
       <button type="button" onClick={() => void signOut()} disabled={busy} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15 disabled:opacity-50">
         <LogOut className="h-3.5 w-3.5" /> {busy ? "Saindo..." : "Logoff"}
       </button>
+      </div>
     </div>
   );
 }
@@ -101,13 +123,6 @@ function SidebarFooter() {
       >
         <Plus className="h-4 w-4 text-[#e9b7c1]" />
         Cadastrar área
-      </Link>
-      <Link
-        href="/documentacao"
-        className="flex items-center justify-center gap-2 rounded-xl bg-white/5 px-3 py-2 text-[11px] font-medium text-white/70 ring-1 ring-inset ring-white/10 transition hover:bg-white/10 hover:text-white"
-      >
-        <BookOpen className="h-3.5 w-3.5" />
-        Documentação e ajuda dos campos
       </Link>
       <div className="rounded-xl bg-forest-600/60 p-3 ring-1 ring-inset ring-white/10">
         <div className="flex items-center gap-2">
@@ -152,6 +167,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <p className="text-[10px] uppercase tracking-[0.16em] text-white/45">Áreas &amp; Galpões</p>
             </div>
           </Link>
+          <Link href="/atualizacoes" aria-label="Atualizações do CRM" title="Atualizações do CRM" className="absolute right-4 top-5 rounded-lg p-2 text-white/55 transition hover:bg-white/10 hover:text-white">
+            <Bell className="h-4 w-4" />
+          </Link>
           <div className="mt-5 flex items-center gap-2 rounded-full bg-forest-600 px-3 py-1.5 text-[10px] text-white/60 ring-1 ring-inset ring-white/10">
             <span className="h-1.5 w-1.5 rounded-full bg-lime" />
             Sumaré · RMC · Piracicaba
@@ -172,6 +190,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <p className="text-xs font-semibold text-ink">Land Bank Corp</p>
               <p className="text-[9px] uppercase tracking-[0.14em] text-muted">Áreas &amp; Galpões</p>
             </div>
+          </Link>
+          <Link href="/atualizacoes" aria-label="Atualizações do CRM" title="Atualizações do CRM" className="rounded-lg border border-line bg-white p-2 text-muted">
+            <Bell className="h-4 w-4" />
           </Link>
           <button
             type="button"

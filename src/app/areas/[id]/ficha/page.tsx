@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getAreaById, getAreaRestrictions, getTerrainAnalysis } from "@/lib/data";
 import { buildMapSnapshot } from "@/lib/map-snapshot";
-import { fetchPropertyImageryWithBounds } from "@/lib/imagery";
-import { PropertyPhotoOverlay } from "@/components/areas/property-photo-overlay";
 import { distancesToReferences, REFERENCE_KIND_LABELS, REFERENCE_METHOD, type ReferenceKind } from "@/lib/references";
 import { buildIntel } from "@/lib/intelligence";
 import { CONTACT } from "@/lib/contact";
@@ -72,15 +70,6 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
     heatmap: savedView?.heatmap ?? true,
   };
   const snapshot = await buildMapSnapshot(view, 900, 470).catch(() => null);
-  const propertyPhoto = await fetchPropertyImageryWithBounds({
-    lat: area.lat,
-    lng: area.lng,
-    geometry: area.geometry.map((ring) => ring.coordinates),
-    width: 1000,
-    height: 460,
-    paddingPct: 18,
-  }).catch(() => null);
-
   return (
     <div className="min-h-screen bg-paper-deep print:bg-white">
       <PrintToolbar areaCode={area.code} />
@@ -200,7 +189,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
                 heatmap={view.heatmapMode === "cutfill" ? terrain?.cutFillHeatmap ?? null : terrain?.heatmap ?? null}
                 snapshot={snapshot}
                 showContours={view.contours}
-                showHeatmap={view.heatmap}
+                showHeatmap={false}
                 contourScope={view.contourScope}
               />
             </div>
@@ -432,8 +421,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
           </section>
         ) : null}
 
-        {propertyPhoto ? (
-          <section className="mt-3 break-inside-avoid">
+        <section className="mt-3 break-inside-avoid">
             <p className="text-[8px] font-semibold uppercase tracking-[0.12em] text-muted">
               Foto técnica do imóvel — satélite, curvas de nível (0,5 m) e mapa de calor (40%)
             </p>

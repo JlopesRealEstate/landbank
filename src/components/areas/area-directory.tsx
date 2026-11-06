@@ -9,6 +9,15 @@ import { Card, KindBadge, ScorePill, StatusBadge, cn } from "@/components/ui";
 
 type SortKey = "score" | "price" | "area" | "recent";
 
+function AreaCover({ area }: { area: MapArea }) {
+  const [failed, setFailed] = useState(false);
+  if (!area.coverUrl || failed) {
+    return <div className="flex h-full flex-col items-center justify-center gap-1 text-xs text-muted"><Camera className="h-5 w-5 opacity-40" />Foto de capa indisponível</div>;
+  }
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={area.coverUrl} alt={area.name} loading="lazy" decoding="async" onError={() => setFailed(true)} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />;
+}
+
 export function AreaDirectory({ areas }: { areas: MapArea[] }) {
   const [query, setQuery] = useState("");
   const [city, setCity] = useState("todos");
@@ -121,12 +130,7 @@ export function AreaDirectory({ areas }: { areas: MapArea[] }) {
               className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="relative h-44 overflow-hidden bg-paper-deep">
-                {area.coverUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={area.coverUrl} alt={area.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-xs text-muted">Sem foto cadastrada</div>
-                )}
+                <AreaCover area={area} />
                 <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1">
                   <StatusBadge status={area.status} />
                   {area.environmentalRestriction ? (

@@ -88,16 +88,16 @@ export async function updateSession(request: NextRequest) {
     return denied;
   }
 
-  if (user && authorized && userRole !== "admin" && pathname.startsWith("/acessos")) {
+  if (user && authorized && userRole !== "admin" && (pathname.startsWith("/acessos") || pathname.startsWith("/relatorios") || pathname.startsWith("/areas/nova"))) {
     const denied = NextResponse.redirect(new URL("/acesso-negado", request.url));
     copyCookies(response, denied);
     denied.headers.set("Cache-Control", "private, no-store");
     return denied;
   }
 
-  if (user && authorized && userRole === "reader" && ["POST", "PUT", "PATCH", "DELETE"].includes(request.method) && !isAuthRoute && !isPublicPresentation) {
+  if (user && authorized && userRole !== "admin" && ["POST", "PUT", "PATCH", "DELETE"].includes(request.method) && !isAuthRoute && !isPublicPresentation) {
     if (pathname.startsWith("/api/")) {
-      return Response.json({ ok: false, error: "Perfil somente leitura: esta operação não é permitida." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+      return Response.json({ ok: false, error: "Perfil somente leitura: apenas administradores podem cadastrar, editar, excluir ou enviar arquivos." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
     }
     return new NextResponse("Perfil somente leitura: esta operação não é permitida.", { status: 403, headers: { "Cache-Control": "private, no-store" } });
   }

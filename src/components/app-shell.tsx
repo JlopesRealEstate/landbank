@@ -171,7 +171,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     void supabase.auth.getUser().then(async ({ data }) => {
       if (!active || !data.user) return;
       const { data: role } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle();
-      if (active) setIsAdmin(role?.role === "admin");
+      const roleName = (role as unknown as { role?: string } | null)?.role;
+      if (active) setIsAdmin(roleName === "admin");
     });
     return () => { active = false; };
   }, []);

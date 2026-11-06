@@ -1,5 +1,12 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.3.7 — 06/11/2026
+- Corrige a consulta administrativa de usuários: prioriza `SUPABASE_SECRET_KEY` (chave secreta atual) e mantém `SUPABASE_SERVICE_ROLE_KEY` como compatibilidade.
+- Corrige falha em produção causada por chave administrativa inválida no cliente Auth Admin.
+- Registra diagnósticos sanitizados para diferenciar falhas no Auth Admin e na tabela `user_roles`, sem expor credenciais.
+- Mantém verificação da sessão autenticada e do perfil `admin` antes de listar, convidar ou alterar usuários.
+
+
 ## 1.3.6 — 06/11/2026
 - A tela de recuperação identifica `email rate limit exceeded`, informa bloqueio temporário e evita tentativas repetidas no mesmo carregamento.
 - Mantém redirecionamento para `/auth/confirm?next=/definir-senha`.

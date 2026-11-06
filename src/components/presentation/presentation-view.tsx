@@ -146,8 +146,7 @@ export function PresentationView({
                   <MapPin className="h-3 w-3" /> {[area.address, area.neighborhood, area.city, "SP"].filter(Boolean).join(" · ")}
                 </span>
                 <span>
-                  {num(area.landAreaM2)} m² · {num(area.landAreaM2 / 10_000, 2)} ha ·{" "}
-                  {num(area.landAreaM2 / ALQUEIRE_PAULISTA_M2, 2)} alq
+                  {num(area.landAreaM2)} m² · {num(area.landAreaM2 / ALQUEIRE_PAULISTA_M2, 2)} alq · {num(area.landAreaM2 / 10_000, 2)} ha
                 </span>
                 {area.builtAreaM2 > 0 ? <span>{num(area.builtAreaM2)} m² construídos</span> : null}
                 <span className="rounded bg-lime px-1.5 py-0.5 font-semibold text-white">
@@ -179,7 +178,7 @@ export function PresentationView({
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
-            { label: "Área do terreno", value: `${num(area.landAreaM2)} m²`, hint: areaLabel(area.landAreaM2), icon: Ruler },
+            { label: "Área do terreno", value: `${num(area.landAreaM2)} m²`, hint: `${num(area.landAreaM2 / ALQUEIRE_PAULISTA_M2, 2)} alq · ${num(area.landAreaM2 / 10_000, 2)} ha`, icon: Ruler },
             { label: "Área construída", value: area.builtAreaM2 > 0 ? `${num(area.builtAreaM2)} m²` : "—", hint: area.builtAreaM2 > 0 ? "galpão / benfeitorias" : "terreno sem construção", icon: Building2 },
             { label: "Valor por m²", value: brl(area.pricePerM2), hint: "condição comercial", icon: Wallet },
             { label: "Valor total", value: brl(area.totalPrice), hint: `hectare ${brl(intel.pricePerHa)}`, icon: ArrowUpRight },

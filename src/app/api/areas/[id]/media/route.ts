@@ -14,8 +14,8 @@ export async function GET(_request: Request, { params }: Params) {
     const supabase = await createClient() as any;
     // Validate the signed session JWT locally. getUser() adds an Auth network
     // round-trip and can fail independently of the valid SSR cookie session.
-    const { data: { claims }, error: authError } = await supabase.auth.getClaims();
-    const userId = typeof claims?.sub === "string" ? claims.sub : null;
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const userId = authData?.user?.id ?? null;
     if (authError || !userId) return Response.json({ ok: false, error: "Sessão não autenticada ou expirada. Entre novamente no CRM." }, { status: 401 });
     const { data, error } = await supabase.from("media").select("id,area_id,kind,category,name,mime_type,size,caption,external_url,sort_order,created_at").eq("area_id", areaId).order("sort_order").order("id");
     if (error) throw error;
@@ -35,8 +35,8 @@ export async function POST(request: Request, { params }: Params) {
   if (!Number.isInteger(areaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
     const supabase = await createClient() as any;
-    const { data: { claims }, error: authError } = await supabase.auth.getClaims();
-    const userId = typeof claims?.sub === "string" ? claims.sub : null;
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const userId = authData?.user?.id ?? null;
     if (authError || !userId) return Response.json({ ok: false, error: "Sessão expirada. Entre novamente no CRM." }, { status: 401 });
 
     const { data: area, error: areaError } = await supabase.from("areas").select("id,code").eq("id", areaId).maybeSingle();

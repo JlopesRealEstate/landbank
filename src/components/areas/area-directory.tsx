@@ -153,7 +153,7 @@ export function AreaDirectory({ areas }: { areas: MapArea[] }) {
                   </div>
                   <ScorePill score={area.score} grade={area.grade} />
                 </div>
-                <div className="grid grid-cols-3 gap-1.5 text-center">
+                <div className="grid grid-cols-4 gap-1.5 text-center">
                   <div className="rounded-lg bg-paper/70 px-1 py-1.5">
                     <p className="text-[9px] uppercase tracking-[0.08em] text-muted">m²</p>
                     <p className="text-[11px] font-semibold tabular-nums">{num(area.landAreaM2)}</p>
@@ -161,10 +161,10 @@ export function AreaDirectory({ areas }: { areas: MapArea[] }) {
                   <div className="rounded-lg bg-paper/70 px-1 py-1.5">
                     <p className="text-[9px] uppercase tracking-[0.08em] text-muted">alq</p>
                     <p className="text-[11px] font-semibold tabular-nums">{num(area.landAreaM2 / ALQUEIRE_PAULISTA_M2, 2)}</p>
-                    <p className="text-[9px] uppercase tracking-[0.08em] text-muted">ha</p>
-                    <p className="text-[11px] font-semibold tabular-nums">{num(area.landAreaM2 / 10_000, 2)}</p>
                   </div>
                   <div className="rounded-lg bg-paper/70 px-1 py-1.5">
+                    <p className="text-[9px] uppercase tracking-[0.08em] text-muted">ha</p>
+                    <p className="text-[11px] font-semibold tabular-nums">{num(area.landAreaM2 / 10_000, 2)}</p>
                   </div>
                   <div className="rounded-lg bg-paper/70 px-1 py-1.5">
                     <p className="text-[9px] uppercase tracking-[0.08em] text-muted">construção</p>

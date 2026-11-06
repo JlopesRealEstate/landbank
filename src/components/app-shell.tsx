@@ -183,7 +183,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-paper">
-      <aside className="sticky top-0 hidden h-screen w-[252px] shrink-0 flex-col justify-between bg-forest px-4 py-5 lg:flex">
+      <aside className="sticky top-0 hidden h-screen max-h-screen w-[252px] shrink-0 flex-col justify-start gap-5 overflow-x-hidden overflow-y-auto overscroll-contain bg-forest px-4 py-5 lg:flex">
         <div>
           <Link href="/" className="flex items-center gap-3 px-1">
             <BrandMark />
@@ -204,7 +204,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <NavLinks isAdmin={isAdmin} />
           </div>
         </div>
-        <SidebarFooter isAdmin={isAdmin} />
+        <div className="mt-auto w-full shrink-0 pt-4"><SidebarFooter isAdmin={isAdmin} /></div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -237,7 +237,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               className="absolute inset-0 bg-ink/50 backdrop-blur-sm"
               onClick={() => setOpen(false)}
             />
-            <div className="absolute inset-y-0 left-0 flex w-[min(88vw,320px)] flex-col justify-between gap-6 overflow-y-auto bg-forest px-4 py-5">
+            <div className="absolute inset-y-0 left-0 flex w-[min(88vw,320px)] flex-col justify-start gap-6 overflow-x-hidden overflow-y-auto overscroll-contain bg-forest px-4 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
               <div>
                 <div className="flex items-center justify-between">
                   <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
@@ -255,7 +255,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <NavLinks isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
                 </div>
               </div>
-              <SidebarFooter isAdmin={isAdmin} />
+              <div className="mt-auto w-full shrink-0 pt-4"><SidebarFooter isAdmin={isAdmin} /></div>
             </div>
           </div>
         ) : null}

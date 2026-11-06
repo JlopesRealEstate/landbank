@@ -69,7 +69,8 @@ export function buildIntel(area: Area, city: City | undefined, counts: { photos:
   };
   const bestEntry = Object.entries(distances).sort((a, b) => a[1] - b[1])[0];
   const bestHub = (HUB_KEYS as Record<string, { name: string }>)[bestEntry[0]]?.name ?? "Campinas";
-  const benchmark = city?.marketPriceM2 ?? 320;
+  // Benchmark suspenso até existir base de comparáveis auditável por município, uso, área e data.
+  const benchmark = 0;
   const builtRatio = area.landAreaM2 > 0 ? area.builtAreaM2 / area.landAreaM2 : 0;
   // Em galpões o preço por m² embute a construção: descontamos o valor das benfeitorias
   // para comparar o solo com o benchmark de terreno da cidade.
@@ -95,10 +96,9 @@ export function buildIntel(area: Area, city: City | undefined, counts: { photos:
       (onHighway ? 14 : 0),
   );
 
-  const priceScore =
-    area.pricePerM2 > 0
-      ? clamp(62 - (marketDeltaPct / 100) * 55 + clamp((area.landAreaM2 / 100_000) * 12, 0, 14))
-      : 42;
+  const priceScore = benchmark > 0 && area.pricePerM2 > 0
+    ? clamp(62 - (marketDeltaPct / 100) * 55 + clamp((area.landAreaM2 / 100_000) * 12, 0, 14))
+    : 42;
 
   const occupancy = area.landAreaM2 > 0 ? area.builtAreaM2 / area.landAreaM2 : 0;
   const builtScore =
@@ -143,7 +143,7 @@ export function buildIntel(area: Area, city: City | undefined, counts: { photos:
       label: "Preço vs. mercado",
       score: Math.round(priceScore),
       weight: 0.2,
-      note: `R$/m² ${num(area.pricePerM2)} (solo equiv. ${num(landEquivalentPrice)}) · benchmark ${num(benchmark)} (${marketDeltaPct >= 0 ? "+" : ""}${num(marketDeltaPct)}%)`,
+      note: benchmark > 0 ? `R$/m² ${num(area.pricePerM2)} · variação ${num(marketDeltaPct)}%` : "Benchmark pendente de comparáveis auditáveis; não usar para precificação.",
     },
     {
       key: "aproveitamento",
@@ -176,16 +176,14 @@ export function buildIntel(area: Area, city: City | undefined, counts: { photos:
     score >= 82 ? "Alta prioridade" : score >= 70 ? "Ativo estratégico" : score >= 58 ? "Monitorar" : "Revisar tese";
 
   const insights: string[] = [];
-  if (marketDeltaPct <= -8) {
-    insights.push(
-      `Preço pedido ${num(Math.abs(marketDeltaPct))}% abaixo do benchmark de ${city?.name ?? "região"} (${brl(benchmark)}/m²) — margem para arbitragem.`,
-    );
-  } else if (marketDeltaPct >= 12) {
-    insights.push(
-      `Preço ${num(marketDeltaPct)}% acima do benchmark regional — exige diferenciação de produto ou laudo de valor.`,
-    );
+  if (benchmark > 0 && marketDeltaPct <= -8) {
+    insights.push("Preço abaixo da referência comparável disponível.");
+  } else if (benchmark > 0 && marketDeltaPct >= 12) {
+    insights.push("Preço acima da referência comparável disponível — revisar tese de valor.");
+  } else if (benchmark > 0) {
+    insights.push("Preço dentro da faixa de referência comparável disponível.");
   } else {
-    insights.push(`Preço alinhado ao benchmark regional (${brl(benchmark)}/m²) para ${city?.name ?? "a região"}.`);
+    insights.push("Benchmark comercial suspenso: falta base auditável de transações comparáveis para aferir o valor com segurança.");
   }
   if (area.kind === "galpao" && occupancy > 0 && occupancy < 0.45) {
     insights.push(

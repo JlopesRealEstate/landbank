@@ -44,7 +44,7 @@ export default async function PresentationPage({ params }: { params: Promise<{ c
       elevationRange={
         terrain?.stats ? { min: terrain.stats.minElevation, max: terrain.stats.maxElevation } : null
       }
-      media={media.map((item) => ({
+      media={media.filter((item) => item.kind === "photo").map((item) => ({
         id: item.id,
         kind: item.kind,
         category: item.category,

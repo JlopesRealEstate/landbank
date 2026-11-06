@@ -157,13 +157,6 @@ export function PresentationView({
                 </span>
               </p>
             </div>
-            <div className="absolute right-3 top-3 flex items-center gap-2 rounded-xl bg-white/95 px-2.5 py-1.5 shadow-sm backdrop-blur">
-              <ScoreRing score={intel.score} size={44} />
-              <div>
-                <p className="text-[8px] font-semibold uppercase tracking-[0.1em] text-muted">Land Score</p>
-                <p className="text-[10px] font-semibold text-ink">{intel.grade}</p>
-              </div>
-            </div>
           </div>
 
           {photos.length > 1 ? (
@@ -190,7 +183,7 @@ export function PresentationView({
           {[
             { label: "Área do terreno", value: `${num(area.landAreaM2)} m²`, hint: areaLabel(area.landAreaM2), icon: Ruler },
             { label: "Área construída", value: area.builtAreaM2 > 0 ? `${num(area.builtAreaM2)} m²` : "—", hint: area.builtAreaM2 > 0 ? "galpão / benfeitorias" : "terreno sem construção", icon: Building2 },
-            { label: "Valor por m²", value: brl(area.pricePerM2), hint: `benchmark ${brl(intel.benchmark)}/m²`, icon: Wallet },
+            { label: "Valor por m²", value: brl(area.pricePerM2), hint: "condição comercial", icon: Wallet },
             { label: "Valor total", value: brl(area.totalPrice), hint: `hectare ${brl(intel.pricePerHa)}`, icon: ArrowUpRight },
           ].map((item) => {
             const Icon = item.icon;
@@ -268,9 +261,9 @@ export function PresentationView({
                   basemap={basemap}
                   fitToAreas
                   showPopup={false}
-                  contours={contours}
+                  contours={contours.filter((contour) => contour.inside !== false)}
                   elevationRange={elevationRange}
-                  heatmap={heatmap}
+                  heatmap={null}
                   fitSignal={fitSignal}
                   className="h-full w-full"
                 />
@@ -289,7 +282,7 @@ export function PresentationView({
                   <p className="text-muted sm:col-span-3">
                     Curvas de nível <strong className="text-[11px] text-ink-soft">{contours.length} traçados sobrepostos à demarcação</strong>
                     {" "}· linhas em bordô indicam curvas mestras
-                    {heatmap ? " · mapa de calor com as cotas do terreno sobreposto ao perímetro" : ""}
+
                   </p>
                 ) : null}
               </div>
@@ -343,13 +336,6 @@ export function PresentationView({
                 <div className="flex justify-between">
                   <span className="text-muted">Tipo</span>
                   <span className="font-semibold">{area.kind === "galpao" ? "Galpão / logística" : area.kind === "misto" ? "Uso misto" : "Terreno"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted">Posição vs. benchmark</span>
-                  <span className={cn("font-semibold", intel.marketDeltaPct <= 0 ? "text-leaf-600" : "text-amber-700")}>
-                    {intel.marketDeltaPct >= 0 ? "+" : ""}
-                    {num(intel.marketDeltaPct)}%
-                  </span>
                 </div>
               </div>
               <div className="mt-3 grid gap-1.5">

@@ -14,6 +14,7 @@ import {
   Menu,
   Plus,
   Sparkles,
+  ShieldCheck,
   X,
 } from "lucide-react";
 import { FileBarChart, Archive, BellRing } from "lucide-react";
@@ -29,6 +30,7 @@ const NAV = [
   { href: "/consultas", label: "Consultas", icon: Archive, hint: "Vendidos e cancelados" },
   { href: "/documentacao", label: "Documentação", icon: BookOpen, hint: "Manual e ajuda" },
   { href: "/atualizacoes", label: "Atualizações do CRM", icon: BellRing, hint: "Novidades e melhorias" },
+  { href: "/acessos", label: "Controle de acessos", icon: ShieldCheck, hint: "Usuários e permissões" },
 ];
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
@@ -94,7 +96,7 @@ function SidebarFooter() {
           junior.lopes@creci.org.br
         </a>
       </div>
-      <p className="px-1 text-[10px] text-white/35">Land Bank Corp · v1.1</p>
+      <p className="px-1 text-[10px] text-white/35">Land Bank Corp · v1.3.0</p>
     </div>
   );
 }

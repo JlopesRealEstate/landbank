@@ -275,7 +275,7 @@ export function AreaDetail({
             <p className="text-sm font-semibold text-ink">{intel.grade}</p>
             <p className="text-[10px] text-muted">
               {intel.marketDeltaPct >= 0 ? "+" : ""}
-              {num(intel.marketDeltaPct)}% vs. benchmark
+              {intel.benchmark > 0 ? `${num(intel.marketDeltaPct)}% vs. benchmark` : "Benchmark pendente de aferição"}
             </p>
           </div>
         </div>
@@ -724,7 +724,7 @@ export function AreaDetail({
                     <ScoreRing score={intel.score} size={72} />
                     <div className="text-[11px]">
                       <p className="font-semibold text-ink">{intel.grade}</p>
-                      <p className="text-muted">benchmark {brl(intel.benchmark)}/m²</p>
+                      <p className="text-muted">{intel.benchmark > 0 ? `benchmark ${brl(intel.benchmark)}/m²` : "benchmark pendente de comparáveis auditáveis"}</p>
                       <p className="text-muted">hub mais próximo: {intel.bestHub} ({num(intel.bestHubKm, 1)} km)</p>
                     </div>
                   </div>
@@ -824,7 +824,7 @@ export function AreaDetail({
             <div className="mt-3 space-y-1.5 border-t border-line pt-2.5 text-[11px]">
               <div className="flex justify-between">
                 <span className="text-muted">Benchmark {area.city}</span>
-                <span className="font-semibold">{brl(intel.benchmark)}/m²</span>
+                <span className="font-semibold">{intel.benchmark > 0 ? `${brl(intel.benchmark)}/m²` : "Pendente de aferição"}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Diferença</span>

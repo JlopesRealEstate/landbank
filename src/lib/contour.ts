@@ -104,39 +104,44 @@ export function contourChains(grid: number[][], level: number, bounds: Bounds): 
     }
   }
 
-  // encadeamento por coordenadas idênticas (arredondadas) — sem prender segmentos isolados
+  // Encadeia segmentos como grafo não direcionado. A versão anterior só
+  // procurava segmentos cujo início coincidisse com a ponta da cadeia;
+  // isso fragmentava curvas quando o segmento seguinte vinha invertido.
   const key = (point: [number, number]) => `${point[0].toFixed(9)},${point[1].toFixed(9)}`;
-  const byStart = new Map<string, number[]>();
+  const adjacency = new Map<string, number[]>();
   segments.forEach((segment, index) => {
-    const k = key(segment.a);
-    const list = byStart.get(k) ?? [];
-    list.push(index);
-    byStart.set(k, list);
+    for (const endpoint of [segment.a, segment.b]) {
+      const k = key(endpoint);
+      const list = adjacency.get(k) ?? [];
+      list.push(index);
+      adjacency.set(k, list);
+    }
   });
 
   const used = new Array(segments.length).fill(false);
   const chains: Ring[] = [];
+  const extend = (chain: Ring, atHead: boolean) => {
+    while (true) {
+      const endpoint = atHead ? chain[0] : chain[chain.length - 1];
+      const candidates = adjacency.get(key(endpoint)) ?? [];
+      const candidate = candidates.find((index) => !used[index]);
+      if (candidate === undefined) break;
+      used[candidate] = true;
+      const segment = segments[candidate];
+      const other = key(segment.a) === key(endpoint) ? segment.b : segment.a;
+      if (atHead) chain.unshift(other);
+      else chain.push(other);
+    }
+  };
 
   for (let index = 0; index < segments.length; index += 1) {
     if (used[index]) continue;
     used[index] = true;
     const chain: Ring = [segments[index].a, segments[index].b];
-    let extended = true;
-    while (extended) {
-      extended = false;
-      const tail = chain[chain.length - 1];
-      const candidates = byStart.get(key(tail)) ?? [];
-      for (const candidate of candidates) {
-        if (used[candidate]) continue;
-        used[candidate] = true;
-        chain.push(segments[candidate].b);
-        extended = true;
-        break;
-      }
-    }
+    extend(chain, false);
+    extend(chain, true);
     if (chain.length >= 2) chains.push(chain);
   }
-
   return chains;
 }
 

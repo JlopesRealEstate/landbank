@@ -10,8 +10,8 @@ export async function GET(request: Request, { params }: Params) {
   if (!Number.isInteger(mediaId)) return new Response("ID inválido", { status: 400 });
   try {
     const supabase = await createClient() as any;
-    const { data: { claims }, error: authError } = await supabase.auth.getClaims();
-    const userId = typeof claims?.sub === "string" ? claims.sub : null;
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const userId = authData?.user?.id ?? null;
     if (authError || !userId) return new Response("Sessão não autenticada ou expirada. Entre novamente no CRM.", { status: 401 });
 
     const { data: row, error } = await supabase.from("media")
@@ -58,8 +58,8 @@ export async function DELETE(_request: Request, { params }: Params) {
   if (!Number.isInteger(mediaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
     const supabase = await createClient() as any;
-    const { data: { claims }, error: authError } = await supabase.auth.getClaims();
-    const userId = typeof claims?.sub === "string" ? claims.sub : null;
+    const { data: authData, error: authError } = await supabase.auth.getUser();
+    const userId = authData?.user?.id ?? null;
     if (authError || !userId) return Response.json({ ok: false, error: "Sessão não autenticada ou expirada. Entre novamente no CRM." }, { status: 401 });
 
     const { data: row, error: readError } = await supabase.from("media")

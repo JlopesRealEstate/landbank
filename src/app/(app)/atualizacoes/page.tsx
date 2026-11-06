@@ -2,13 +2,25 @@ import { BellRing, CheckCircle2, FileUp, Map, ShieldCheck, Sparkles, Mountain, L
 import { CRM_VERSION, CRM_RELEASE_DATE } from "@/lib/version";
 
 const releases = [
+  {
+    version: "1.4.0",
+    date: "06/11/2026",
+    title: "Menu responsivo e correções de publicação",
+    commit: "30aa4ec",
+    items: [
+      { icon: Layers, title: "Menu lateral sem cortes", detail: "A navegação desktop e mobile permite rolagem vertical; a área da conta e o botão Sair do CRM ficam no rodapé sem serem comprimidos." },
+      { icon: FileUp, title: "Leitura de fotos e documentos", detail: "A camada de dados consulta os metadados diretamente no Supabase e a entrega dos arquivos privados valida sessão e perfil antes de usar a chave administrativa no servidor." },
+      { icon: ShieldCheck, title: "Permissões preservadas", detail: "Leitores e membros continuam sem permissão para cadastrar, editar ou excluir imóveis; a leitura permanece restrita a usuários autenticados autorizados." },
+      { icon: CheckCircle2, title: "Status de publicação", detail: "Versão registrada no código-fonte e no histórico. A publicação em produção depende da liberação do limite de deploy da Vercel; esta entrada não afirma que a versão já está online." },
+    ],
+  },
   { version: "1.3.5", date: "06/11/2026", title: "Links de recuperação independentes do navegador", items: [{ icon: KeyRound, title: "Confirmação por token hash", detail: "Recuperação de senha e convites usam verifyOtp no servidor, sem depender do verificador PKCE armazenado no navegador que pediu o e-mail." }, { icon: ShieldCheck, title: "Sessão persistida e validada", detail: "Cookies são gravados na resposta de confirmação; a troca de senha exige sessão autenticada." }] },
   { version: "1.3.4", date: "06/11/2026", title: "Recuperação de senha e sessão protegida", items: [{ icon: KeyRound, title: "Formulário de nova senha acessível", detail: "A tela abre mesmo antes do cookie de recuperação existir; só permite salvar após validar a sessão Supabase." }, { icon: ShieldCheck, title: "Bloqueio fail-closed", detail: "Rotas internas continuam protegidas e o CRM retorna ao login quando a sessão não existe ou expira." }] },
   { version: "1.3.3", date: "06/11/2026", title: "Conta, senha e navegação compacta", items: [{ icon: ShieldCheck, title: "Identificação da conta conectada", detail: "O CRM mostra o e-mail autenticado e oferece saída explícita da conta." }, { icon: KeyRound, title: "Recuperação e alteração de senha", detail: "Redefinição pela tela de login e alteração de senha dentro do CRM." }, { icon: BellRing, title: "Atualizações em ícone discreto", detail: "O histórico de versões sai do menu principal e fica acessível pelo sino." }] },
   { version: "1.3.2", date: "06/11/2026", title: "Sessão e controle de acesso", items: [{ icon: ShieldCheck, title: "Controle de acesso com retorno ao login", detail: "Sessões expiradas no painel administrativo agora encaminham para login e retornam à rota solicitada." }, { icon: KeyRound, title: "Ações Login e Logoff", detail: "Navegação com entrada explícita e encerramento global da sessão Supabase." }] },
   { version: "1.3.1", date: "05/11/2026", title: "Recuperação de senha", items: [{ icon: KeyRound, title: "Link de redefinição corrigido", detail: "O e-mail agora aponta para o domínio de produção, passa pelo callback PKCE e abre a tela para definir uma nova senha." }] },
   {
-    version: CRM_VERSION,
+    version: "1.3.0",
     date: "05/11/2026",
     title: "Segurança, mapas e relatórios técnicos",
     items: [

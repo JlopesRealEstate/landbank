@@ -22,11 +22,11 @@ import {
   ShieldAlert,
   Wallet,
 } from "lucide-react";
-import type { City, TerrainHeatmap } from "@/db/schema";
+import type { City } from "@/db/schema";
 import { BASEMAPS, type BasemapId, type MapArea } from "@/lib/map-types";
 import { ALQUEIRE_PAULISTA_M2, areaLabel, brl, num } from "@/lib/format";
 import { CONTACT } from "@/lib/contact";
-import { Bar, BrandMark, Card, CityIndicators, KindBadge, ScoreRing, StatusBadge, cn } from "@/components/ui";
+import { BrandMark, Card, CityIndicators, KindBadge, StatusBadge, cn } from "@/components/ui";
 import type { AreaIntel } from "@/lib/intelligence";
 
 const MapCanvas = dynamic(() => import("@/components/map/map-canvas").then((mod) => mod.MapCanvas), {
@@ -51,7 +51,6 @@ export function PresentationView({
   city,
   media,
   contours = [],
-  heatmap = null,
   elevationRange = null,
 }: {
   area: MapArea & { description: string; zoningNotes: string; environmentalNotes: string; contactName: string; contactPhone: string; contactEmail: string };
@@ -59,7 +58,6 @@ export function PresentationView({
   city?: City;
   media: PresentationMedia[];
   contours?: { elevation: number; coordinates: [number, number][]; kind: string; inside?: boolean }[];
-  heatmap?: TerrainHeatmap | null;
   elevationRange?: { min: number; max: number } | null;
 }) {
   const photos = media.filter((item) => item.kind === "photo");

@@ -88,8 +88,18 @@ export async function updateSession(request: NextRequest) {
     return denied;
   }
 
-  if (user && authorized && userRole === "reader" && pathname.startsWith("/api/") && ["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
-    return Response.json({ ok: false, error: "Perfil somente leitura: esta operação não é permitida." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+  if (user && authorized && userRole !== "admin" && pathname.startsWith("/acessos")) {
+    const denied = NextResponse.redirect(new URL("/acesso-negado", request.url));
+    copyCookies(response, denied);
+    denied.headers.set("Cache-Control", "private, no-store");
+    return denied;
+  }
+
+  if (user && authorized && userRole === "reader" && ["POST", "PUT", "PATCH", "DELETE"].includes(request.method) && !isAuthRoute && !isPublicPresentation) {
+    if (pathname.startsWith("/api/")) {
+      return Response.json({ ok: false, error: "Perfil somente leitura: esta operação não é permitida." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+    }
+    return new NextResponse("Perfil somente leitura: esta operação não é permitida.", { status: 403, headers: { "Cache-Control": "private, no-store" } });
   }
 
   if (user && authorized && (isLoginPage || isDeniedPage)) {

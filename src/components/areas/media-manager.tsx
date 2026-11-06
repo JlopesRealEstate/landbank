@@ -29,38 +29,24 @@ export type MediaItem = {
   createdAt: string | Date;
 };
 
-async function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result).split(",")[1] ?? "");
-    reader.onerror = () => reject(new Error("Falha ao ler arquivo"));
-    reader.readAsDataURL(file);
-  });
-}
-
-async function compressPhoto(file: File): Promise<{ data: string; mimeType: string; size: number; name: string }> {
+async function preparePhoto(file: File): Promise<{ body: Blob; mimeType: string; size: number; name: string }> {
   try {
     const bitmap = await createImageBitmap(file);
-    const maxSize = 1600;
+    const maxSize = 2000;
     const scale = Math.min(1, maxSize / Math.max(bitmap.width, bitmap.height));
-    const width = Math.round(bitmap.width * scale);
-    const height = Math.round(bitmap.height * scale);
     const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
     const context = canvas.getContext("2d");
-    if (!context) throw new Error("canvas indisponível");
-    context.drawImage(bitmap, 0, 0, width, height);
-    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.82));
-    if (!blob) throw new Error("compressão falhou");
-    const buffer = await blob.arrayBuffer();
-    let binary = "";
-    const bytes = new Uint8Array(buffer);
-    for (let index = 0; index < bytes.length; index += 1) binary += String.fromCharCode(bytes[index]);
-    return { data: btoa(binary), mimeType: "image/jpeg", size: blob.size, name: file.name.replace(/\.[^.]+$/, "") + ".jpg" };
+    if (!context) throw new Error("Canvas indisponível");
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob>((resolve, reject) =>
+      canvas.toBlob((value) => value ? resolve(value) : reject(new Error("Falha ao preparar imagem")), "image/jpeg", 0.88),
+    );
+    return { body: blob, mimeType: "image/jpeg", size: blob.size, name: file.name.replace(/\.[^.]+$/, "") + ".jpg" };
   } catch {
-    const data = await fileToBase64(file);
-    return { data, mimeType: file.type || "image/jpeg", size: file.size, name: file.name };
+    return { body: file, mimeType: file.type || "application/octet-stream", size: file.size, name: file.name };
   }
 }
 
@@ -88,38 +74,42 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
     setMessage(null);
     try {
       const supabase = createSupabaseClient() as any;
-      const registered: Array<{ kind: string; category: string; name: string; mimeType: string; size: number; storagePath: string; caption: string }> = [];
-      const uploadedPaths: string[] = [];
-      for (const file of Array.from(files)) {
+      const selected = Array.from(files);
+      if (kind === "photo" && photos.length + selected.length > 100) {
+        throw new Error(`Limite de 100 fotos por imóvel. Já existem ${photos.length}; você pode adicionar mais ${Math.max(0, 100 - photos.length)}.`);
+      }
+      const preparedFiles = await Promise.all(selected.map(async (file) => {
         if (file.size > 9 * 1024 * 1024) throw new Error(`${file.name} excede 9 MB.`);
-        const prepared = kind === "photo"
-          ? await compressPhoto(file)
-          : { data: await fileToBase64(file), mimeType: file.type || "application/octet-stream", size: file.size, name: file.name };
-        const binary = atob(prepared.data);
-        const bytes = new Uint8Array(binary.length);
-        for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
-        const storagePath = `${areaId}/${crypto.randomUUID()}-${prepared.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-        const { error: uploadError } = await supabase.storage.from("landbank-files").upload(storagePath, bytes, {
-          contentType: prepared.mimeType, upsert: false,
-        });
-        if (uploadError) throw new Error(`Storage recusou "${file.name}": ${uploadError.message}`);
-        uploadedPaths.push(storagePath);
+        if (kind === "photo") return preparePhoto(file);
+        return { body: file as Blob, mimeType: file.type || "application/octet-stream", size: file.size, name: file.name };
+      }));
+      const authResponse = await fetch(`/api/areas/${areaId}/media/upload-url`, {
+        method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind, files: preparedFiles.map((file) => ({ name: file.name, size: file.size, mimeType: file.mimeType })) }),
+      });
+      const authData = await authResponse.json() as { ok: boolean; error?: string; uploads?: Array<{ path: string; token: string; name: string; size: number; mimeType: string }> };
+      if (!authResponse.ok || !authData.ok || !authData.uploads) throw new Error(authData.error ?? "Não foi possível autorizar os arquivos.");
+      const registered: Array<{ kind: string; category: string; name: string; mimeType: string; size: number; storagePath: string; caption: string }> = [];
+      for (let index = 0; index < preparedFiles.length; index += 1) {
+        const prepared = preparedFiles[index];
+        const target = authData.uploads[index];
+        const { error: uploadError } = await supabase.storage.from("landbank-files").uploadToSignedUrl(
+          target.path, target.token, prepared.body, { contentType: prepared.mimeType },
+        );
+        if (uploadError) throw new Error(`Storage recusou "${selected[index].name}": ${uploadError.message}`);
         registered.push({
           kind, category: kind === "photo" ? "fachada" : category,
-          name: prepared.name, mimeType: prepared.mimeType, size: bytes.byteLength, storagePath, caption: "",
+          name: target.name, mimeType: prepared.mimeType, size: prepared.size, storagePath: target.path, caption: "",
         });
       }
       const response = await fetch(`/api/areas/${areaId}/media`, {
-        method: "POST",
-        credentials: "same-origin",
+        method: "POST", credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ items: registered }),
       });
-      const data = (await response.json()) as { ok: boolean; error?: string };
-      if (!response.ok || !data.ok) {
-        await supabase.storage.from("landbank-files").remove(uploadedPaths);
-        throw new Error(data.error ?? "Falha ao registrar arquivos no dossiê.");
-      }
+      const data = await response.json() as { ok: boolean; error?: string };
+      if (!response.ok || !data.ok) throw new Error(data.error ?? "Falha ao registrar arquivos no dossiê.");
       setMessage({ tone: "ok", text: `${registered.length} arquivo(s) adicionados ao dossiê.` });
       if (kind === "photo" && photoRef.current) photoRef.current.value = "";
       if (kind === "document" && docRef.current) docRef.current.value = "";
@@ -217,7 +207,7 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
       ) : null}
 
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">Fotos ({photos.length})</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">Fotos ({photos.length}/100)</p>
         {photos.length === 0 ? (
           <p className="mt-2 rounded-lg bg-paper/60 p-3 text-[11px] text-muted">Nenhuma foto cadastrada.</p>
         ) : (

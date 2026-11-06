@@ -205,7 +205,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
             </div>
             <p className="mt-1 text-[7px] text-muted">
               Coordenadas {area.lat.toFixed(5)}, {area.lng.toFixed(5)} · {area.geometry.length} polígono(s) ·{" "}
-              {terrain?.source ?? "sem análise topográfica"} · visualização salva ({view.basemap}, zoom {view.zoom})
+              {terrain?.source ?? "sem análise topográfica"} · curvas com equidistância cartográfica de 1 m (interpoladas a partir do MDE) · visualização salva ({view.basemap}, zoom {view.zoom})
             </p>
           </div>
         </section>

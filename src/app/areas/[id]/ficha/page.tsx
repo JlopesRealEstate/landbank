@@ -670,36 +670,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
           </section>
         ) : null}
 
-        {propertyPhoto ? (
-          <section className="mt-3 break-inside-avoid">
-            <p className="text-[8px] font-semibold uppercase tracking-[0.12em] text-muted">
-              Foto técnica do imóvel — satélite, curvas de nível (0,5 m) e mapa de calor (40%)
-            </p>
-            <div className="mt-1">
-              <PropertyPhotoOverlay
-                imageSrc={propertyPhoto.dataUrl}
-                bounds={propertyPhoto.bounds}
-                geometry={area.geometry.map((ring) => ({ coordinates: ring.coordinates }))}
-                contours={fichaContours}
-                heatmap={terrain?.heatmap ?? null}
-                restrictions={restrictions.map((item) => ({
-                  id: item.id,
-                  type: item.type,
-                  label: item.label,
-                  coordinates: item.coordinates,
-                }))}
-                heatmapOpacity={40}
-                caption={`${area.code} — ${area.city}`}
-              />
-            </div>
-            <p className="mt-0.5 text-[7px] text-muted">
-              Esri World Imagery · equidistância {num(terrain?.interval ?? 0.5, 1)} m · grade de análise{" "}
-              {num(terrain?.gridInfo?.columns ?? 0)}×{num(terrain?.gridInfo?.rows ?? 0)} células de ~
-              {num(terrain?.gridInfo?.cellAreaM2 ?? 0)} m² (usada nos perfis) · coordenadas {area.lat.toFixed(5)},{" "}
-              {area.lng.toFixed(5)}
-            </p>
-          </section>
-        ) : null}
+
 
         <section className="mt-3 break-inside-avoid">
           <p className="text-[8px] font-semibold uppercase tracking-[0.12em] text-muted">

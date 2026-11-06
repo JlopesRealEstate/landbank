@@ -9,7 +9,7 @@ const releases = [
     items: [
       { icon: FileUp, title: "Leitura de fotos sem bloqueio indevido por RLS", detail: "A sessão e o perfil são validados primeiro; os metadados do arquivo são consultados com a chave administrativa exclusivamente no servidor. O bucket permanece privado." },
       { icon: Layers, title: "Logoff sempre visível", detail: "Navegação e rodapé agora ocupam regiões independentes. A navegação rola sem empurrar ou cortar os botões da conta, no desktop e no celular." },
-      { icon: ShieldCheck, title: "Segurança preservada", detail: "Apenas perfis autenticados autorizados podem solicitar a imagem; a chave administrativa nunca é enviada ao navegador." },
+      { icon: ShieldCheck, title: "Segurança preservada", detail: "Apenas perfis autenticados autorizados podem solicitar a imagem; a chave administrativa nunca é enviada ao navegador. A variável SUPABASE_SECRET_KEY_V2 precisa estar preenchida no ambiente Production da Vercel para o Storage privado entregar os arquivos." },
     ],
   },
   {

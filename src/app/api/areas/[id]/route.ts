@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/authorization";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { areas } from "@/db/schema";
@@ -22,6 +23,8 @@ export async function GET(_request: Request, { params }: Params) {
 }
 
 export async function PATCH(request: Request, { params }: Params) {
+  const access = await requireAdmin();
+  if ("response" in access) return access.response;
   try {
     await ensureDatabase();
     const { id } = await params;
@@ -60,6 +63,8 @@ export async function PATCH(request: Request, { params }: Params) {
 }
 
 export async function DELETE(_request: Request, { params }: Params) {
+  const access = await requireAdmin();
+  if ("response" in access) return access.response;
   try {
     await ensureDatabase();
     const { id } = await params;

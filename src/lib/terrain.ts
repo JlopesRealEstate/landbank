@@ -248,6 +248,7 @@ export async function analyzeTerrain(
   const allPoints = [...aroundPoints, ...innerPoints];
   const live = await fetchElevations(allPoints);
   const liveCount = live.filter((value) => value !== null).length;
+  // SRTM 30 m é modelo de elevação para triagem, não levantamento topográfico cadastral.
   const source =
     liveCount === 0
       ? "Modelo digital estimado (offline — sem conexão SRTM)"
@@ -255,11 +256,12 @@ export async function analyzeTerrain(
         ? "SRTM 30 m · OpenTopoData"
         : `SRTM 30 m · ${Math.round((liveCount / allPoints.length) * 100)}% amostras reais + interpolação`;
 
-  const values = allPoints.map((point, index) =>
-    live[index] !== null && live[index] !== undefined
-      ? Number(live[index])
-      : syntheticElevation(point.lat, point.lng, anchor.lat, anchor.lng),
-  );
+  // Nunca preencher falhas de MDE com relevo sintético: isso cria curvas e
+  // volumes fictícios que podem induzir decisões de aquisição/terraplenagem.
+  if (liveCount !== allPoints.length) {
+    throw new Error(`MDE incompleto: ${liveCount} de ${allPoints.length} amostras válidas. Análise cancelada para evitar cotas artificiais.`);
+  }
+  const values = live.map((value) => Number(value));
   const aroundFlat = values.slice(0, aroundPoints.length);
   const innerFlat = values.slice(aroundPoints.length);
 

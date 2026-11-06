@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/authorization";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_UPLOAD_BYTES, isAllowedMime, safeFileName } from "@/lib/validation";
 
@@ -29,6 +30,8 @@ export async function GET(_request: Request, { params }: Params) {
 }
 
 export async function POST(request: Request, { params }: Params) {
+  const access = await requireAdmin();
+  if ("response" in access) return access.response;
   const areaId = Number((await params).id);
   if (!Number.isInteger(areaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {

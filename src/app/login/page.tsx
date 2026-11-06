@@ -11,7 +11,23 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [resetBusy, setResetBusy] = useState(false);
+  const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+
+  async function handlePasswordReset() {
+    if (!email.trim()) { setError("Informe seu e-mail para receber o link de redefinição."); return; }
+    setResetBusy(true); setError(""); setNotice("");
+    try {
+      const supabase = createClient();
+      const redirectTo = "https://landbank-mu.vercel.app/auth/callback?next=%2Fdefinir-senha";
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+      if (resetError) throw resetError;
+      setNotice("Se o e-mail estiver cadastrado, enviaremos um link seguro para redefinir a senha. Use sempre o link mais recente.");
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Não foi possível solicitar a redefinição.");
+    } finally { setResetBusy(false); }
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,7 +60,9 @@ export default function LoginPage() {
             <input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} className="mt-2 w-full rounded-lg border border-white/15 bg-black/20 px-3 py-3 text-white outline-none focus:border-amber-400" />
           </label>
           {error && <p role="alert" className="rounded-lg border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
-          <button disabled={busy} className="w-full rounded-lg bg-amber-400 px-4 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:opacity-60">{busy ? "Entrando..." : "Entrar"}</button>
+          <button disabled={busy || resetBusy} className="w-full rounded-lg bg-amber-400 px-4 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:opacity-60">{busy ? "Entrando..." : "Entrar"}</button>
+          <button type="button" disabled={busy || resetBusy} onClick={() => void handlePasswordReset()} className="w-full rounded-lg border border-white/15 px-4 py-3 text-sm text-white/80 hover:border-amber-400 disabled:opacity-60">{resetBusy ? "Enviando..." : "Esqueci minha senha"}</button>
+          {notice ? <p role="status" className="rounded-lg border border-green-400/30 bg-green-400/10 p-3 text-sm text-green-200">{notice}</p> : null}
         </form>
         <p className="mt-6 text-xs leading-5 text-white/40">Novas contas são liberadas exclusivamente por convite de um administrador do Land Bank Corp. O cadastro público não é permitido.</p>
       </section>

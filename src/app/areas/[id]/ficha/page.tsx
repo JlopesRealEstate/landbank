@@ -9,6 +9,7 @@ import { CONTACT } from "@/lib/contact";
 import { ALQUEIRE_PAULISTA_M2, areaLabel, brl, dateLabel, num } from "@/lib/format";
 import { BrandMark } from "@/components/ui";
 import { TerrainProfileChart } from "@/components/areas/terrain-profile-chart";
+import { buildContours } from "@/lib/contour";
 import {
   FichaContactBlock,
   FichaMapSketch,
@@ -48,10 +49,19 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
   const netArea = Math.max(0, area.landAreaM2 - restrictedM2);
   const netValuePerM2 = netArea > 0 ? Math.round(area.totalPrice / netArea) : 0;
   // curvas para os overlays de impressão (limitadas para manter o PDF leve)
-  const fichaContours = (terrain?.contours ?? [])
-    .filter((contour) => contour.inside !== false)
-    .sort((first, second) => (first.kind === "index" ? -1 : 1) - (second.kind === "index" ? -1 : 1))
-    .slice(0, 200);
+  // Exportação cartográfica em equidistância de 1 m a partir do MDE armazenado.
+  // A resolução e a fonte do MDE continuam sendo a limitação real da precisão vertical.
+  const fichaContours = terrain?.demGrid
+    ? buildContours({
+        grid: terrain.demGrid.values,
+        bounds: terrain.demGrid.bounds,
+        boundary: terrain.demGrid.boundary,
+        interval: 1,
+        indexInterval: 5,
+        minElevation: terrain.demGrid.min,
+        maxElevation: terrain.demGrid.max,
+      }).filter((contour) => contour.inside !== false)
+    : (terrain?.contours ?? []).filter((contour) => contour.inside !== false);
   const referenceDistances = distancesToReferences({ lat: area.lat, lng: area.lng });
   const referenceKinds = [...new Set(referenceDistances.map((item) => item.kind))] as ReferenceKind[];
 
@@ -184,7 +194,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
             <div className="mt-1">
               <FichaMapSketch
                 geometry={area.geometry}
-                contours={terrain?.contours ?? []}
+                contours={fichaContours}
                 restrictions={restrictions.map((item) => ({ id: item.id, type: item.type, label: item.label || item.type, coordinates: item.coordinates }))}
                 heatmap={view.heatmapMode === "cutfill" ? terrain?.cutFillHeatmap ?? null : terrain?.heatmap ?? null}
                 snapshot={snapshot}
@@ -419,77 +429,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
 
 
 
-        {terrain && stats && grading ? (
-          <section className="mt-3 rounded-lg border border-[#e3c2c9] bg-[#f6e8eb]/25 p-2.5">
-            <p className="text-[9px] font-semibold text-ink">Análise topográfica e parecer de terraplenagem</p>
-            <div className="mt-1.5 grid grid-cols-4 gap-1.5">
-              {[
-                { label: "Cotas", value: `${num(stats.minElevation, 1)}–${num(stats.maxElevation, 1)} m` },
-                { label: "Amplitude", value: `${num(stats.rangeM, 1)} m` },
-                { label: "Declividade média", value: `${num(stats.slopePct, 2)}%` },
-                { label: "Curvas (KMZ / entorno)", value: `${num(stats.insideContours ?? 0)} / ${num(stats.aroundContours ?? 0)}` },
-                {
-                  label: "Área do KMZ",
-                  value: `${num(stats.geodesicAreaM2 ?? 0)} m² · ${num((stats.geodesicAreaM2 ?? 0) / 10_000, 2)} ha · ${num(
-                    (stats.geodesicAreaM2 ?? 0) / ALQUEIRE_PAULISTA_M2,
-                    2,
-                  )} alq`,
-                },
-                {
-                  label: "Área estudada",
-                  value: `${num(stats.studiedAreaM2 ?? 0)} m² · ${num((stats.studiedAreaM2 ?? 0) / ALQUEIRE_PAULISTA_M2, 2)} alq`,
-                },
-                { label: "Cota de projeto", value: `${num(grading.targetElevation, 2)} m` },
-                { label: "Corte", value: `${num(grading.cutVolumeM3)} m³` },
-                { label: "Aterro", value: `${num(grading.fillVolumeM3)} m³` },
-                { label: "Custo estimado", value: brl(grading.totalCost) },
-              ].map((item) => (
-                <div key={item.label} className="rounded bg-white/80 px-1.5 py-1">
-                  <p className="text-[7px] font-semibold uppercase tracking-[0.06em] text-muted">{item.label}</p>
-                  <p className="text-[9px] font-semibold tabular-nums text-ink">{item.value}</p>
-                </div>
-              ))}
-            </div>
-            {terrain.profile ? (
-              <div className="mt-2">
-                <TerrainProfileChart profile={terrain.profile} crossProfile={terrain.crossProfile} height={132} />
-              </div>
-            ) : null}
-            <table className="mt-2 w-full text-left text-[8px]">
-              <thead className="bg-white/70 text-[7px] uppercase tracking-[0.06em] text-muted">
-                <tr>
-                  <th className="px-1.5 py-1 font-semibold">Serviço</th>
-                  <th className="px-1.5 py-1 font-semibold">Quantidade</th>
-                  <th className="px-1.5 py-1 font-semibold">Custo unit.</th>
-                  <th className="px-1.5 py-1 text-right font-semibold">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e3c2c9]/60">
-                {grading.costs.map((line) => (
-                  <tr key={line.label}>
-                    <td className="px-1.5 py-0.5 text-ink-soft">{line.label}</td>
-                    <td className="px-1.5 py-0.5 tabular-nums">
-                      {num(line.quantity)} {line.unit}
-                    </td>
-                    <td className="px-1.5 py-0.5 tabular-nums">{brl(line.unitCost)}</td>
-                    <td className="px-1.5 py-0.5 text-right font-semibold tabular-nums">{brl(line.total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t border-[#e3c2c9]">
-                  <td colSpan={3} className="px-1.5 py-1 font-semibold text-ink">
-                    Total · {num(grading.costPerM2, 2)} R$/m² · prazo ~{grading.days} dias
-                  </td>
-                  <td className="px-1.5 py-1 text-right font-semibold tabular-nums text-[#8c2f43]">{brl(grading.totalCost)}</td>
-                </tr>
-              </tfoot>
-            </table>
-            <p className="mt-1 text-[7px] leading-snug text-muted">
-              {grading.notes.slice(0, 3).join(" ")}
-            </p>
-          </section>
-        ) : null}
+        
 
         {restrictions.length ? (
           <section className="mt-3 rounded-lg border border-[#e3c2c9] bg-[#f6e8eb]/20 p-2.5">

@@ -71,11 +71,22 @@ function AuthActions() {
   useEffect(() => {
     const supabase = createClient();
     let mounted = true;
-    void supabase.auth.getUser().then(({ data }) => {
-      if (mounted) setEmail(data.user?.email ?? null);
+    void supabase.auth.getUser().then(({ data, error }) => {
+      if (!mounted) return;
+      if (error || !data.user) {
+        window.location.replace("/login?error=session_expired");
+        return;
+      }
+      setEmail(data.user.email ?? null);
     });
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) setEmail(session?.user?.email ?? null);
+      if (!mounted) return;
+      if (!session?.user) {
+        setEmail(null);
+        window.location.replace("/login?error=session_expired");
+        return;
+      }
+      setEmail(session.user.email ?? null);
     });
     return () => { mounted = false; listener.subscription.unsubscribe(); };
   }, []);

@@ -1,5 +1,12 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.3.5 — 06/11/2026
+- Adiciona endpoint `/auth/confirm` com `verifyOtp(token_hash)` para recuperação e convites, sem depender do cookie PKCE do navegador que solicitou o e-mail.
+- Persiste explicitamente os cookies de sessão na resposta de confirmação.
+- Recuperação de senha e convites passam a apontar para o endpoint de confirmação por token hash.
+- Mantém a rota de definição de senha acessível para validação visual, mas exige sessão Supabase verificada para salvar.
+
+
 ## 1.3.4 — 06/11/2026
 - Libera somente a rota de definição de senha para carregar antes da sessão; a gravação exige usuário verificado pelo Supabase.
 - Formulário de nova senha sempre visível, com detecção de sessão PKCE/implicit e mensagem explícita para link expirado.

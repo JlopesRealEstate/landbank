@@ -127,35 +127,18 @@ function AuthActions() {
 
 function SidebarFooter({ isAdmin }: { isAdmin: boolean }) {
   return (
-    <div className="space-y-3">
+    <div className="w-full space-y-2">
       <AuthActions />
-      {isAdmin ? <Link
-        href="/areas/nova"
-        className="flex items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/15 transition hover:bg-white/15"
-      >
-        <Plus className="h-4 w-4 text-[#e9b7c1]" />
-        Cadastrar área
-      </Link> : null}
-      <div className="rounded-xl bg-forest-600/60 p-3 ring-1 ring-inset ring-white/10">
-        <div className="flex items-center gap-2">
-          <BarChart3 className="h-3.5 w-3.5 text-[#e9b7c1]" />
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/70">Base regional</p>
-        </div>
-        <p className="mt-2 text-[11px] leading-relaxed text-white/60">
-          Sumaré-SP, RMC e Piracicaba. Imóveis vendidos e cancelados saem do controle e ficam apenas em Consultas.
-        </p>
-      </div>
-      <div className="rounded-xl bg-forest-600/60 p-2.5 ring-1 ring-inset ring-white/10">
-        <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-white/50">Contato comercial</p>
-        <p className="mt-1 text-[10px] font-medium text-white">Junior Lopes</p>
-        <a href="tel:+5519994960304" className="block text-[10px] text-white/70 hover:text-[#e9b7c1]">
-          +55 19 99496-0304
-        </a>
-        <a href="mailto:junior.lopes@creci.org.br" className="block truncate text-[10px] text-white/70 hover:text-[#e9b7c1]">
-          junior.lopes@creci.org.br
-        </a>
-      </div>
-      <p className="px-1 text-[10px] text-white/35">Land Bank Corp · v{CRM_VERSION}</p>
+      {isAdmin ? (
+        <Link
+          href="/areas/nova"
+          className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/15 transition hover:bg-white/15"
+        >
+          <Plus className="h-4 w-4 text-[#e9b7c1]" />
+          Cadastrar área
+        </Link>
+      ) : null}
+      <p className="px-1 pt-1 text-[10px] text-white/35">Land Bank Corp · v{CRM_VERSION}</p>
     </div>
   );
 }

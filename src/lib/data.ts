@@ -44,19 +44,27 @@ function withUrl(row: Omit<MediaMeta, "url">): MediaMeta {
 }
 
 async function getSupabaseMediaRows(areaId?: number): Promise<MediaMeta[]> {
-  const client = createStorageAdminClient();
-  let query = client.from("media")
-    .select("id,area_id,kind,category,name,mime_type,size,caption,external_url,sort_order,created_at")
-    .order("sort_order", { ascending: true }).order("id", { ascending: true });
-  if (areaId !== undefined) query = query.eq("area_id", areaId);
-  const { data, error } = await query;
-  if (error) throw new Error("Falha ao consultar mídia do Supabase: " + error.message);
-  return (data ?? []).map((row: any) => withUrl({
-    id: row.id, areaId: row.area_id, kind: row.kind, category: row.category,
-    name: row.name, mimeType: row.mime_type, size: row.size ?? 0,
-    caption: row.caption ?? "", externalUrl: row.external_url,
-    sortOrder: row.sort_order ?? 0, createdAt: new Date(row.created_at),
-  }));
+  try {
+    const client = createStorageAdminClient();
+    let query = client.from("media")
+      .select("id,area_id,kind,category,name,mime_type,size,caption,external_url,sort_order,created_at")
+      .order("sort_order", { ascending: true }).order("id", { ascending: true });
+    if (areaId !== undefined) query = query.eq("area_id", areaId);
+    const { data, error } = await query;
+    if (error) throw error;
+    return (data ?? []).map((row: any) => withUrl({
+      id: row.id, areaId: row.area_id, kind: row.kind, category: row.category,
+      name: row.name, mimeType: row.mime_type, size: row.size ?? 0,
+      caption: row.caption ?? "", externalUrl: row.external_url,
+      sortOrder: row.sort_order ?? 0, createdAt: new Date(row.created_at),
+    }));
+  } catch (storageError) {
+    // The relational database can still supply metadata while the Storage secret is being repaired.
+    console.error("[media:metadata-fallback]", storageError);
+    let query = db.select(mediaMetaSelect).from(media).orderBy(asc(media.sortOrder), asc(media.id));
+    if (areaId !== undefined) query = db.select(mediaMetaSelect).from(media).where(eq(media.areaId, areaId)).orderBy(asc(media.sortOrder), asc(media.id)) as typeof query;
+    return (await query).map(withUrl);
+  }
 }
 
 export async function getAreas(options?: { includeArchived?: boolean }): Promise<AreaRecord[]> {

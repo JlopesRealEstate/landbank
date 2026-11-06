@@ -1,5 +1,11 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.4.0 — 06/11/2026
+- Corrige erro de TypeScript que impedia a publicação das versões 1.3.8 e 1.3.9.
+- Menu lateral desktop e mobile passa a ter rolagem vertical, com rodapé e ações da conta sem corte.
+- Mantém leitura segura das fotos e documentos do Supabase para todos os perfis autenticados autorizados.
+
+
 ## 1.3.9 — 06/11/2026
 - Corrige o menu da conta: ações de senha/login em grade e botão de saída em largura total, sem corte.
 - Corrige o rodapé do menu mobile, passando a receber o perfil administrativo corretamente e permitindo rolagem.

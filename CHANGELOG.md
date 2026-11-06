@@ -1,6 +1,8 @@
 # Histórico de versões — Land Bank Corp
 
 ## 1.4.0 — 06/11/2026
+- Commit de referência da versão: `30aa4ec` (versão e metadados do release).
+- Situação: registrada no código-fonte; ainda não publicada em produção devido ao limite temporário de deploy da Vercel.
 - Corrige erro de TypeScript que impedia a publicação das versões 1.3.8 e 1.3.9.
 - Menu lateral desktop e mobile passa a ter rolagem vertical, com rodapé e ações da conta sem corte.
 - Mantém leitura segura das fotos e documentos do Supabase para todos os perfis autenticados autorizados.

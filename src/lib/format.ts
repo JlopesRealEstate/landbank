@@ -89,25 +89,21 @@ export function alqueireLabel(m2: number | null | undefined, digits = 2): string
 /** Ex.: "67,34 ha · 27,83 alq" */
 export function areaHaAlq(m2: number | null | undefined): string {
   const value = Number(m2 ?? 0);
-  return `${num(value / 10_000, 2)} ha · ${alqueireLabel(value)}`;
+  return `${alqueireLabel(value)} · ${num(value / 10_000, 2)} ha`;
 }
 
 /** Ex.: "673.435 m² · 67,34 ha · 27,83 alq" — padrão completo para fichas e cards */
 export function areaFullLabel(m2: number | null | undefined): string {
   const value = Number(m2 ?? 0);
-  return `${num(value)} m² · ${num(value / 10_000, 2)} ha · ${alqueireLabel(value)}`;
+  return `${num(value)} m² · ${alqueireLabel(value)} · ${num(value / 10_000, 2)} ha`;
 }
 
 export function areaLabel(m2: number | null | undefined): string {
-  const value = Number(m2 ?? 0);
-  if (value >= 10_000) {
-    return `${num(value / 10_000, 2)} ha`;
-  }
-  return `${num(value)} m²`;
+  return areaFullLabel(m2);
 }
 
 export function areaWithM2(m2: number | null | undefined): string {
-  return `${areaLabel(m2)} · ${num(m2)} m²`;
+  return areaFullLabel(m2);
 }
 
 export function dateLabel(value: Date | string | null | undefined): string {

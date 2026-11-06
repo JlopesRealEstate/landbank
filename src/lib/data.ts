@@ -61,9 +61,10 @@ async function getSupabaseMediaRows(areaId?: number): Promise<MediaMeta[]> {
   } catch (storageError) {
     // The relational database can still supply metadata while the Storage secret is being repaired.
     console.error("[media:metadata-fallback]", storageError);
-    let query = db.select(mediaMetaSelect).from(media).orderBy(asc(media.sortOrder), asc(media.id));
-    if (areaId !== undefined) query = db.select(mediaMetaSelect).from(media).where(eq(media.areaId, areaId)).orderBy(asc(media.sortOrder), asc(media.id)) as typeof query;
-    return (await query).map(withUrl);
+    const fallbackRows = areaId === undefined
+      ? await db.select(mediaMetaSelect).from(media).orderBy(asc(media.sortOrder), asc(media.id))
+      : await db.select(mediaMetaSelect).from(media).where(eq(media.areaId, areaId)).orderBy(asc(media.sortOrder), asc(media.id));
+    return fallbackRows.map(withUrl);
   }
 }
 

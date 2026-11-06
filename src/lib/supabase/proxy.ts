@@ -53,13 +53,15 @@ export async function updateSession(request: NextRequest) {
   const isPublicPresentation = pathname.startsWith("/apresentacao/");
 
   let authorized = false;
+  let userRole: string | null = null;
   if (user && !authError) {
     const { data: roleRow, error: roleError } = await supabase
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
       .maybeSingle();
-    authorized = !roleError && ["admin", "member", "reader"].includes(roleRow?.role ?? "");
+    userRole = roleRow?.role ?? null;
+    authorized = !roleError && ["admin", "member", "reader"].includes(userRole ?? "");
   }
 
   if (!user && !isLoginPage && !isAuthRoute && !isPublicPresentation && !isDeniedPage) {
@@ -84,6 +86,10 @@ export async function updateSession(request: NextRequest) {
     copyCookies(response, denied);
     denied.headers.set("Cache-Control", "private, no-store");
     return denied;
+  }
+
+  if (user && authorized && userRole === "reader" && pathname.startsWith("/api/") && ["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
+    return Response.json({ ok: false, error: "Perfil somente leitura: esta operação não é permitida." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
   }
 
   if (user && authorized && (isLoginPage || isDeniedPage)) {

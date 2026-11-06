@@ -12,8 +12,6 @@ export async function GET(_request: Request, { params }: Params) {
   if (!Number.isInteger(areaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
   try {
     const supabase = await createClient() as any;
-    // Validate the signed session JWT locally. getUser() adds an Auth network
-    // round-trip and can fail independently of the valid SSR cookie session.
     const { data: authData, error: authError } = await supabase.auth.getUser();
     const userId = authData?.user?.id ?? null;
     if (authError || !userId) return Response.json({ ok: false, error: "Sessão não autenticada ou expirada. Entre novamente no CRM." }, { status: 401 });

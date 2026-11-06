@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { Loader2, MailPlus, RefreshCw, ShieldCheck, UserRound, Users } from "lucide-react";
 
 type AccessUser = { id: string; email: string; role: string; lastSignInAt: string | null; createdAt: string };
-const ROLE_LABELS: Record<string, string> = { admin: "Administrador", member: "Editor", reader: "Somente leitura", sem_acesso: "Sem acesso" };
 
 export function AccessManager() {
   const [users, setUsers] = useState<AccessUser[]>([]);

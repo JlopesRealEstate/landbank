@@ -10,6 +10,8 @@ import {
   Database,
   Layers,
   LayoutDashboard,
+  LogIn,
+  LogOut,
   Map as MapIcon,
   Menu,
   Plus,
@@ -20,6 +22,7 @@ import {
 import { FileBarChart, Archive, BellRing } from "lucide-react";
 import { BrandMark, cn } from "@/components/ui";
 import { CRM_VERSION } from "@/lib/version";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV = [
   { href: "/", label: "Painel executivo", icon: LayoutDashboard, hint: "Portfólio e mapa" },
@@ -58,6 +61,34 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
         );
       })}
     </nav>
+  );
+}
+
+function AuthActions() {
+  const [busy, setBusy] = useState(false);
+  async function signOut() {
+    if (busy) return;
+    setBusy(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.auth.signOut({ scope: "global" });
+      if (error) throw error;
+      window.location.replace("/login");
+    } catch (error) {
+      console.error("[auth:signout]", error);
+      setBusy(false);
+      window.location.replace("/login?error=signout");
+    }
+  }
+  return (
+    <div className="flex gap-2">
+      <Link href="/login" className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs font-medium text-white/70 hover:bg-white/10">
+        <LogIn className="h-3.5 w-3.5" /> Login
+      </Link>
+      <button type="button" onClick={() => void signOut()} disabled={busy} className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white hover:bg-white/15 disabled:opacity-50">
+        <LogOut className="h-3.5 w-3.5" /> {busy ? "Saindo..." : "Logoff"}
+      </button>
+    </div>
   );
 }
 

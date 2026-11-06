@@ -17,8 +17,10 @@ export function AccessManager() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/admin/users", { cache: "no-store" });
+      const response = await fetch("/api/admin/users", { cache: "no-store", credentials: "same-origin" });
       const data = await response.json();
+      if (response.status === 401) { window.location.assign("/login?next=%2Facessos"); return; }
+      if (response.status === 403) throw new Error(data.error ?? "Esta área exige perfil administrador.");
       if (!response.ok || !data.ok) throw new Error(data.error ?? "Falha ao consultar usuários.");
       setUsers(data.users ?? []);
     } catch (error) {
@@ -37,6 +39,7 @@ export function AccessManager() {
     try {
       const response = await fetch("/api/admin/users", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, fullName, role }),
       });
@@ -59,6 +62,7 @@ export function AccessManager() {
     try {
       const response = await fetch("/api/admin/users", {
         method: "PATCH",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.id, role: nextRole }),
       });

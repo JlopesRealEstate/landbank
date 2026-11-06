@@ -1,5 +1,13 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.3.8 — 06/11/2026
+- Define administradores como únicos usuários autorizados a cadastrar, editar, excluir imóveis e enviar arquivos.
+- Perfis `member` e `reader` passam a operar em modo somente leitura, mantendo consulta integral e geração de fichas PDF.
+- Oculta no menu e bloqueia por URL os módulos Controle de Acessos e Relatórios para não administradores.
+- Adiciona validação de autorização no servidor e proteção nas rotas de imóveis e upload de mídia.
+- Mantém o administrador principal e os dados existentes sem alteração.
+
+
 ## 1.3.7 — 06/11/2026
 - Corrige a consulta administrativa de usuários: prioriza `SUPABASE_SECRET_KEY` (chave secreta atual) e mantém `SUPABASE_SERVICE_ROLE_KEY` como compatibilidade.
 - Corrige falha em produção causada por chave administrativa inválida no cliente Auth Admin.

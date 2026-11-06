@@ -1,5 +1,12 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.4.2 — 06/11/2026
+- Elimina a dependência de `SUPABASE_SECRET_KEY_V2` para leitura de fotos e documentos: valida identidade e perfil com a sessão do usuário e consulta `media`/Storage usando o cliente Supabase autenticado.
+- A leitura permanece restrita às políticas RLS existentes: admin, member e reader; bucket `landbank-files` continua privado.
+- Metadados de mídia passam a ser consultados no projeto Supabase atual pela sessão autenticada, sem fallback silencioso para outro banco Postgres.
+- Publicação em produção depende de build e validação da Vercel.
+
+
 ## 1.4.1 — 06/11/2026
 - Corrige a leitura dos metadados de fotos privadas: após validar sessão e perfil autorizado, a rota `/api/media/[id]` consulta a tabela `media` pelo cliente administrativo server-only, evitando bloqueio indevido por RLS na consulta de sessão.
 - O download do objeto continua no bucket privado `landbank-files`; nenhuma foto foi tornada pública.

@@ -1,5 +1,12 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.3.3 — 06/11/2026
+- Exibe o e-mail da conta autenticada e ações de senha/login/logoff no rodapé da navegação.
+- Remove Atualizações do menu textual e disponibiliza acesso discreto pelo ícone de sino.
+- Remove o segundo atalho de Documentação, mantendo apenas o item principal.
+- Adiciona recuperação de senha na tela de login com callback de produção e mantém alteração de senha dentro do CRM.
+- Confirmação do usuário administrador no Supabase: jlopes@tecnolopes.com.br (perfil admin).
+
 ## 1.3.2 — 06/11/2026
 - A tela de Controle de Acessos redireciona para login quando a sessão expira e preserva a rota de retorno.
 - Requisições administrativas enviam explicitamente cookies same-origin e distinguem sessão expirada de perfil sem permissão.

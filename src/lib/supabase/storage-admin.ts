@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 
 /** Private media is read with the authenticated user session and explicit RLS policies. */
 export async function getAuthorizedStorageClient() {
-  const sessionClient = await createClient();
+  const sessionClient = await createClient() as any;
   const { data: { user }, error } = await sessionClient.auth.getUser();
   if (error || !user) return { error: "Sessão não autenticada.", status: 401 as const };
   const { data: role, error: roleError } = await sessionClient

@@ -104,17 +104,6 @@ function round9(value: number): number {
 }
 
 
-/** Elevação sintética determinística — apenas quando o serviço SRTM está indisponível. */
-function syntheticElevation(lat: number, lng: number, seedLat: number, seedLng: number): number {
-  const x = (lng - seedLng) * 111;
-  const y = (lat - seedLat) * 111;
-  const base = 610 + Math.sin(lat * 3.1) * 16 + Math.cos(lng * 2.7) * 12;
-  const wave1 = Math.sin(x * 0.75 + 1.1) * Math.cos(y * 0.6 - 0.4) * 13;
-  const wave2 = Math.cos(x * 1.6 - 0.6) * Math.sin(y * 1.35 + 0.9) * 4.5;
-  const wave3 = Math.sin((x + y) * 3.1) * 1.2;
-  return base + wave1 + wave2 + wave3;
-}
-
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

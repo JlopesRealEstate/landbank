@@ -45,7 +45,7 @@ export function RestrictionsPanel({
   const [polygon, setPolygon] = useState<[number, number][]>([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [focus, setFocus] = useState<[number, number][] | null>(null);
   const [axis, setAxis] = useState<[number, number][]>([]);

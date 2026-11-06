@@ -1,5 +1,12 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.3.4 — 06/11/2026
+- Libera somente a rota de definição de senha para carregar antes da sessão; a gravação exige usuário verificado pelo Supabase.
+- Formulário de nova senha sempre visível, com detecção de sessão PKCE/implicit e mensagem explícita para link expirado.
+- O proxy continua bloqueando rotas internas e APIs sem usuário autenticado e perfil autorizado.
+- O AppShell redireciona ao login quando a sessão do Supabase desaparece, sem exibir o CRM como sessão desconhecida.
+
+
 ## 1.3.3 — 06/11/2026
 - Exibe o e-mail da conta autenticada e ações de senha/login/logoff no rodapé da navegação.
 - Remove Atualizações do menu textual e disponibiliza acesso discreto pelo ícone de sino.

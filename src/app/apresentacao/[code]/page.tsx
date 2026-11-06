@@ -40,11 +40,10 @@ export default async function PresentationPage({ params }: { params: Promise<{ c
       }}
       intel={intel}
       city={city}
-      contours={terrain?.contours ?? []}
+      contours={(terrain?.contours ?? []).filter((contour) => contour.inside !== false)}
       elevationRange={
         terrain?.stats ? { min: terrain.stats.minElevation, max: terrain.stats.maxElevation } : null
       }
-      heatmap={terrain?.heatmap ?? null}
       media={media.map((item) => ({
         id: item.id,
         kind: item.kind,

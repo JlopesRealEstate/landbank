@@ -3,11 +3,11 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Land Bank Corp | Áreas & Galpões",
+  title: "EldoradoCorp | Áreas & Galpões",
   description:
     "CRM de controle de áreas e galpões com mapa interativo, dossiês, perímetros KMZ e inteligência de indicadores IBGE para Sumaré, RMC e Piracicaba.",
-  applicationName: "Land Bank Corp",
-  keywords: ["land bank", "CRM imobiliário", "galpões", "Sumaré", "Campinas", "Piracicaba", "IBGE"],
+  applicationName: "EldoradoCorp",
+  keywords: ["EldoradoCorp", "CRM imobiliário", "galpões", "Sumaré", "Campinas", "Piracicaba", "IBGE"],
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

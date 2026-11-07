@@ -1,4 +1,4 @@
-import { BellRing, CheckCircle2, FileUp, Map, ShieldCheck, Sparkles, Mountain, Layers, KeyRound, FileCheck } from "lucide-react";
+import { BellRing, CheckCircle2, FileUp, Map, ShieldCheck, Sparkles, Mountain, Layers, KeyRound, FileCheck, Building2 } from "lucide-react";
 import { CRM_VERSION, CRM_RELEASE_DATE } from "@/lib/version";
 
 const releases = [

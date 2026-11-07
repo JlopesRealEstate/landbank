@@ -25,7 +25,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     if (item.storage_path) {
       const { data, error: signError } = await admin.storage.from("landbank-files").createSignedUrl(item.storage_path, 600);
       if (signError || !data?.signedUrl) return new Response("Image unavailable", { status: 404 });
-      return Response.redirect(data.signedUrl, 302, { headers: { "Cache-Control": "public, max-age=60, s-maxage=60" } });
+      return new Response(null, { status: 302, headers: { Location: data.signedUrl, "Cache-Control": "public, max-age=60, s-maxage=60" } });
     }
     if (item.data) {
       const bytes = Buffer.from(item.data, "base64");

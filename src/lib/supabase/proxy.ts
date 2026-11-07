@@ -92,7 +92,7 @@ export async function updateSession(request: NextRequest) {
   if (user && authorized && userRole !== "admin") {
     const guestAllowed =
       pathname === "/" ||
-      (pathname.startsWith("/areas") && !pathname.startsWith("/areas/nova") && !/\\/editar(?:\\/|$)/.test(pathname)) ||
+      (pathname.startsWith("/areas") && !pathname.startsWith("/areas/nova") && !pathname.includes("/editar")) ||
       pathname.startsWith("/mapa") ||
       pathname.startsWith("/indicadores") ||
       pathname.startsWith("/api/areas") ||

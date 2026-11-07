@@ -6,6 +6,7 @@ import { buildMapSnapshot } from "@/lib/map-snapshot";
 import { distancesToReferences, REFERENCE_KIND_LABELS, REFERENCE_METHOD, type ReferenceKind } from "@/lib/references";
 import { buildIntel } from "@/lib/intelligence";
 import { CONTACT } from "@/lib/contact";
+import { createClient } from "@/lib/supabase/server";
 import { ALQUEIRE_PAULISTA_M2, areaLabel, brl, dateLabel, num } from "@/lib/format";
 import { BrandMark } from "@/components/ui";
 import { TerrainProfileChart } from "@/components/areas/terrain-profile-chart";
@@ -36,6 +37,13 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
   if (!result) notFound();
 
   const { area, media, city } = result;
+  const supabase = await createClient();
+  const { data: auth } = await supabase.auth.getUser();
+  const loginContact = {
+    name: String(auth.user?.user_metadata?.full_name ?? auth.user?.user_metadata?.name ?? auth.user?.email ?? "Usuário autenticado"),
+    phone: String(auth.user?.user_metadata?.phone ?? auth.user?.phone ?? "Telefone não informado"),
+    email: auth.user?.email ?? "E-mail não informado",
+  };
   const terrain = await getTerrainAnalysis(numericId);
   const restrictions = await getAreaRestrictions(numericId);
   const intel = buildIntel(area, city, { photos: area.photoCount, documents: area.documentCount });
@@ -94,7 +102,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
                 Land Bank Corp<span className="ml-1 font-normal text-muted">| Áreas &amp; Galpões</span>
               </p>
               <p className="text-[8px] uppercase tracking-[0.16em] text-muted">Ficha técnica do imóvel · Sumaré-SP · RMC · Piracicaba</p>
-              <p className="mt-1 text-[8px] text-muted">Emitida em {dateLabel(new Date())} · {CONTACT.name} · {CONTACT.phoneDisplay}</p>
+              <p className="mt-1 text-[8px] text-muted">Emitida em {dateLabel(new Date())} · {loginContact.name} · {loginContact.phone} · {loginContact.email}</p>
             </div>
           </div>
           <div className="rounded-lg bg-[#0b2a35] px-2.5 py-1.5 text-right text-white">
@@ -211,71 +219,16 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
         </section>
 
         {terrain && stats && grading ? (
-          <section className="mt-3 rounded-lg border border-[#e3c2c9] bg-[#f6e8eb]/25 p-2.5">
-            <p className="text-[9px] font-semibold text-ink">Análise topográfica e parecer de terraplenagem</p>
-            <div className="mt-1.5 grid grid-cols-4 gap-1.5">
-              {[
-                { label: "Cotas", value: `${num(stats.minElevation, 1)}–${num(stats.maxElevation, 1)} m` },
-                { label: "Amplitude", value: `${num(stats.rangeM, 1)} m` },
-                { label: "Declividade média", value: `${num(stats.slopePct, 2)}%` },
-                { label: "Curvas (KMZ / entorno)", value: `${num(stats.insideContours ?? 0)} / ${num(stats.aroundContours ?? 0)}` },
-                {
-                  label: "Área do KMZ",
-                  value: `${num(stats.geodesicAreaM2 ?? 0)} m² · ${num((stats.geodesicAreaM2 ?? 0) / ALQUEIRE_PAULISTA_M2, 2)} alq · ${num((stats.geodesicAreaM2 ?? 0) / 10_000, 2)} ha`,
-                },
-                {
-                  label: "Área estudada",
-                  value: `${num(stats.studiedAreaM2 ?? 0)} m² · ${num((stats.studiedAreaM2 ?? 0) / ALQUEIRE_PAULISTA_M2, 2)} alq · ${num((stats.studiedAreaM2 ?? 0) / 10_000, 2)} ha`,
-                },
-                { label: "Cota de projeto", value: `${num(grading.targetElevation, 2)} m` },
-                { label: "Corte", value: `${num(grading.cutVolumeM3)} m³` },
-                { label: "Aterro", value: `${num(grading.fillVolumeM3)} m³` },
-                { label: "Custo estimado", value: brl(grading.totalCost) },
-              ].map((item) => (
-                <div key={item.label} className="rounded bg-white/80 px-1.5 py-1">
-                  <p className="text-[7px] font-semibold uppercase tracking-[0.06em] text-muted">{item.label}</p>
-                  <p className="text-[9px] font-semibold tabular-nums text-ink">{item.value}</p>
-                </div>
-              ))}
-            </div>
-            {terrain.profile ? (
-              <div className="mt-2">
-                <TerrainProfileChart profile={terrain.profile} crossProfile={terrain.crossProfile} height={132} />
-              </div>
-            ) : null}
-            <table className="mt-2 w-full text-left text-[8px]">
-              <thead className="bg-white/70 text-[7px] uppercase tracking-[0.06em] text-muted">
-                <tr>
-                  <th className="px-1.5 py-1 font-semibold">Serviço</th>
-                  <th className="px-1.5 py-1 font-semibold">Quantidade</th>
-                  <th className="px-1.5 py-1 font-semibold">Custo unit.</th>
-                  <th className="px-1.5 py-1 text-right font-semibold">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#e3c2c9]/60">
-                {grading.costs.map((line) => (
-                  <tr key={line.label}>
-                    <td className="px-1.5 py-0.5 text-ink-soft">{line.label}</td>
-                    <td className="px-1.5 py-0.5 tabular-nums">
-                      {num(line.quantity)} {line.unit}
-                    </td>
-                    <td className="px-1.5 py-0.5 tabular-nums">{brl(line.unitCost)}</td>
-                    <td className="px-1.5 py-0.5 text-right font-semibold tabular-nums">{brl(line.total)}</td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="border-t border-[#e3c2c9]">
-                  <td colSpan={3} className="px-1.5 py-1 font-semibold text-ink">
-                    Total · {num(grading.costPerM2, 2)} R$/m² · prazo ~{grading.days} dias
-                  </td>
-                  <td className="px-1.5 py-1 text-right font-semibold tabular-nums text-[#8c2f43]">{brl(grading.totalCost)}</td>
-                </tr>
-              </tfoot>
-            </table>
-            <p className="mt-1 text-[7px] leading-snug text-muted">
-              {grading.notes.slice(0, 3).join(" ")}
-            </p>
+          <section className="mt-3 break-inside-avoid rounded-lg border border-line p-2.5">
+            <p className="text-[9px] font-semibold text-ink">Perfil altimétrico do terreno</p>
+            {stats ? <div className="mt-1 grid grid-cols-4 gap-1.5">
+              <div className="rounded bg-paper/70 px-1.5 py-1"><p className="text-[7px] uppercase text-muted">Cota mínima</p><p className="text-[9px] font-semibold text-ink">{num(stats.minElevation, 1)} m</p></div>
+              <div className="rounded bg-paper/70 px-1.5 py-1"><p className="text-[7px] uppercase text-muted">Cota máxima</p><p className="text-[9px] font-semibold text-ink">{num(stats.maxElevation, 1)} m</p></div>
+              <div className="rounded bg-paper/70 px-1.5 py-1"><p className="text-[7px] uppercase text-muted">Amplitude</p><p className="text-[9px] font-semibold text-ink">{num(stats.rangeM, 1)} m</p></div>
+              <div className="rounded bg-paper/70 px-1.5 py-1"><p className="text-[7px] uppercase text-muted">Declividade média</p><p className="text-[9px] font-semibold text-ink">{num(stats.slopePct, 2)}%</p></div>
+            </div> : null}
+            {terrain?.profile ? <div className="mt-2"><TerrainProfileChart profile={terrain.profile} crossProfile={terrain.crossProfile} height={132} /></div> : <p className="mt-1 text-[8px] text-muted">Perfil altimétrico não disponível.</p>}
+            <p className="mt-1 text-[7px] text-muted">Perfil indicativo derivado do modelo digital de elevação. Não constitui projeto ou orçamento de terraplenagem.</p>
           </section>
         ) : null}
 
@@ -352,45 +305,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
         ) : null}
 
         {terrain ? (
-          <section className="mt-3 break-inside-avoid">
-            <p className="text-[8px] font-semibold uppercase tracking-[0.12em] text-muted">Análise topográfica — detalhamento</p>
-            <div className="mt-1 grid grid-cols-4 gap-1.5">
-              {[
-                { label: "Fonte do MDE", value: terrain.source },
-                { label: "Equidistância", value: `${num(terrain.interval, 1)} m` },
-                { label: "Entorno analisado", value: `${num(terrain.bufferM)} m` },
-                { label: "Resolução da grade", value: `${num(terrain.resolution)} × ${num(terrain.resolution)}` },
-                { label: "Cota de projeto", value: grading ? `${num(grading.targetElevation, 2)} m` : "—" },
-                { label: "Critério da cota", value: grading?.targetMode ?? "—" },
-                { label: "Área de integração", value: `${num(stats?.integrationAreaM2 ?? 0)} m²` },
-                { label: "Erro de área", value: `${num(stats?.areaErrorPct ?? 0, 2)}%` },
-                { label: "Curvas de nível", value: `${num(stats?.contourCount ?? 0)} (${num(stats?.insideContours ?? 0)} no KMZ)` },
-                { label: "Declividade média", value: `${num(stats?.slopePct ?? 0, 2)}%` },
-                { label: "Direção do declive", value: stats?.dominantDirection ?? "—" },
-                { label: "Prazo estimado", value: grading ? `${grading.days} dias` : "—" },
-              ].map((item) => (
-                <div key={item.label} className="rounded border border-line bg-paper/40 px-1.5 py-1">
-                  <p className="text-[7px] font-semibold uppercase tracking-[0.06em] text-muted">{item.label}</p>
-                  <p className="text-[8px] font-semibold tabular-nums text-ink">{item.value}</p>
-                </div>
-              ))}
-            </div>
-            {grading ? (
-              <div className="mt-1 grid grid-cols-4 gap-1.5">
-                {[
-                  { label: "Corte", value: `${num(grading.cutVolumeM3)} m³` },
-                  { label: "Aterro", value: `${num(grading.fillVolumeM3)} m³` },
-                  { label: "Balanço", value: `${grading.netVolumeM3 >= 0 ? "+" : ""}${num(grading.netVolumeM3)} m³` },
-                  { label: "Custo total", value: brl(grading.totalCost) },
-                ].map((item) => (
-                  <div key={item.label} className="rounded border border-[#e3c2c9] bg-[#f6e8eb]/50 px-1.5 py-1">
-                    <p className="text-[7px] font-semibold uppercase tracking-[0.06em] text-muted">{item.label}</p>
-                    <p className="text-[8px] font-semibold tabular-nums text-[#8c2f43]">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </section>
+          
         ) : null}
 
         {city ? (
@@ -504,45 +419,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
         ) : null}
 
         {terrain ? (
-          <section className="mt-3 break-inside-avoid">
-            <p className="text-[8px] font-semibold uppercase tracking-[0.12em] text-muted">Análise topográfica — detalhamento</p>
-            <div className="mt-1 grid grid-cols-4 gap-1.5">
-              {[
-                { label: "Fonte do MDE", value: terrain.source },
-                { label: "Equidistância", value: `${num(terrain.interval, 1)} m` },
-                { label: "Entorno analisado", value: `${num(terrain.bufferM)} m` },
-                { label: "Resolução da grade", value: `${num(terrain.resolution)} × ${num(terrain.resolution)}` },
-                { label: "Cota de projeto", value: grading ? `${num(grading.targetElevation, 2)} m` : "—" },
-                { label: "Critério da cota", value: grading?.targetMode ?? "—" },
-                { label: "Área de integração", value: `${num(stats?.integrationAreaM2 ?? 0)} m²` },
-                { label: "Erro de área", value: `${num(stats?.areaErrorPct ?? 0, 2)}%` },
-                { label: "Curvas de nível", value: `${num(stats?.contourCount ?? 0)} (${num(stats?.insideContours ?? 0)} no KMZ)` },
-                { label: "Declividade média", value: `${num(stats?.slopePct ?? 0, 2)}%` },
-                { label: "Direção do declive", value: stats?.dominantDirection ?? "—" },
-                { label: "Prazo estimado", value: grading ? `${grading.days} dias` : "—" },
-              ].map((item) => (
-                <div key={item.label} className="rounded border border-line bg-paper/40 px-1.5 py-1">
-                  <p className="text-[7px] font-semibold uppercase tracking-[0.06em] text-muted">{item.label}</p>
-                  <p className="text-[8px] font-semibold tabular-nums text-ink">{item.value}</p>
-                </div>
-              ))}
-            </div>
-            {grading ? (
-              <div className="mt-1 grid grid-cols-4 gap-1.5">
-                {[
-                  { label: "Corte", value: `${num(grading.cutVolumeM3)} m³` },
-                  { label: "Aterro", value: `${num(grading.fillVolumeM3)} m³` },
-                  { label: "Balanço", value: `${grading.netVolumeM3 >= 0 ? "+" : ""}${num(grading.netVolumeM3)} m³` },
-                  { label: "Custo total", value: brl(grading.totalCost) },
-                ].map((item) => (
-                  <div key={item.label} className="rounded border border-[#e3c2c9] bg-[#f6e8eb]/50 px-1.5 py-1">
-                    <p className="text-[7px] font-semibold uppercase tracking-[0.06em] text-muted">{item.label}</p>
-                    <p className="text-[8px] font-semibold tabular-nums text-[#8c2f43]">{item.value}</p>
-                  </div>
-                ))}
-              </div>
-            ) : null}
-          </section>
+          
         ) : null}
 
         {city ? (
@@ -758,7 +635,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
         </section>
 
         <footer className="mt-3 grid grid-cols-2 gap-3 border-t border-line pt-2">
-          <FichaContactBlock />
+          <FichaContactBlock contact={loginContact} />
           <div className="text-[7px] leading-relaxed text-muted">
             <p className="font-semibold uppercase tracking-[0.1em] text-ink-soft">Falar com o consultor</p>
             <p className="mt-0.5 text-[8px] text-ink">
@@ -771,7 +648,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
             <p className="mt-0.5">
               Documento gerado pelo CRM Land Bank Corp. Áreas e perímetros calculados por coordenadas geodésicas; valores
               sujeitos a confirmação documental e laudo de avaliação. Análise topográfica baseada em SRTM 30 m — não
-              substitui levantamento planialtimétrico. Contato: {CONTACT.name} · {CONTACT.phoneDisplay} · {CONTACT.email}.
+              substitui levantamento planialtimétrico. Contato do usuário emissor: {loginContact.name} · {loginContact.phone} · {loginContact.email}.
             </p>
             <Link href="/" className="mt-1 inline-block font-medium text-leaf-600">
               landbankcorp.com.br

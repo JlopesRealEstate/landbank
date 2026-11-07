@@ -35,6 +35,7 @@ export default async function AreasPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Link href="/imoveis" target="_blank" className="rounded-xl border border-line bg-white px-3 py-2.5 text-xs font-medium hover:border-leaf hover:text-leaf-600">Abrir site público</Link>
           <Link href="/mapa" className="rounded-xl border border-line bg-white px-3 py-2.5 text-xs font-medium hover:border-leaf hover:text-leaf-600">
             Visualizar no mapa
           </Link>

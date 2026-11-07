@@ -178,7 +178,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-paper">
       <aside className="sticky top-0 hidden h-dvh w-[252px] shrink-0 flex-col overflow-hidden bg-forest px-4 py-5 lg:flex">
         <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-contain">
-          <div className="relative flex items-center justify-between gap-2 rounded-lg bg-white p-1.5 pr-10">
+          <div className="relative flex items-center justify-between gap-2 rounded-lg p-1.5 pr-10">
           <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex min-w-0 flex-1 items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/api/brand/logo" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-full max-w-[208px] object-contain" />

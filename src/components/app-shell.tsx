@@ -201,7 +201,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-paper/90 px-4 py-3 backdrop-blur lg:hidden">
-          <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg bg-white px-1.5 py-1">
+          <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg px-1.5 py-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/api/brand/logo" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-[170px] object-contain" />
           </Link>
@@ -229,7 +229,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="absolute inset-y-0 left-0 flex w-[min(88vw,320px)] flex-col overflow-hidden bg-forest px-4 py-5 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain">
                 <div className="flex items-center justify-between">
-                  <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg bg-white px-1.5 py-1" onClick={() => setOpen(false)}>
+                  <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg px-1.5 py-1" onClick={() => setOpen(false)}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="/api/brand/logo" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-[170px] object-contain" />
                   </Link>

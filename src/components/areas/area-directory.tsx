@@ -10,12 +10,21 @@ import { Card, KindBadge, ScorePill, StatusBadge, cn } from "@/components/ui";
 type SortKey = "score" | "price" | "area" | "recent";
 
 function AreaCover({ area }: { area: MapArea }) {
-  const [failed, setFailed] = useState(false);
-  if (!area.coverUrl || failed) {
-    return <div className="flex h-full flex-col items-center justify-center gap-1 text-xs text-muted"><Camera className="h-5 w-5 opacity-40" />Foto de capa indisponível</div>;
-  }
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={area.coverUrl} alt={area.name} loading="lazy" decoding="async" onError={() => setFailed(true)} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />;
+  const photos = area.photos?.length ? area.photos : area.coverUrl ? [{ id: 0, url: area.coverUrl, name: area.name, category: "capa" }] : [];
+  const [active, setActive] = useState(0);
+  const [failed, setFailed] = useState<number[]>([]);
+  const visible = photos.filter((photo) => !failed.includes(photo.id));
+  const current = visible[Math.min(active, Math.max(0, visible.length - 1))];
+  if (!current) return <div className="flex h-full flex-col items-center justify-center gap-1 text-xs text-muted"><Camera className="h-5 w-5 opacity-40" />Foto de capa indisponível</div>;
+  return <>
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src={current.url} alt={current.name || area.name} loading="lazy" decoding="async" onError={() => setFailed((items) => [...items, current.id])} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
+    {photos.length > 1 ? <div className="absolute bottom-2 right-2 z-20 flex items-center gap-1 rounded-full bg-forest/85 px-1.5 py-1 text-[10px] text-white shadow">
+      <button type="button" aria-label="Foto anterior" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setActive((value) => (value - 1 + photos.length) % photos.length); }} className="rounded-full px-1.5 hover:bg-white/20">‹</button>
+      <span className="min-w-8 text-center tabular-nums">{active + 1}/{photos.length}</span>
+      <button type="button" aria-label="Próxima foto" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setActive((value) => (value + 1) % photos.length); }} className="rounded-full px-1.5 hover:bg-white/20">›</button>
+    </div> : null}
+  </>;
 }
 
 export function AreaDirectory({ areas }: { areas: MapArea[] }) {
@@ -124,13 +133,13 @@ export function AreaDirectory({ areas }: { areas: MapArea[] }) {
       ) : view === "grid" ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((area) => (
-            <Link
+            <div
               key={area.id}
-              href={`/areas/${area.id}`}
               className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="relative h-44 overflow-hidden bg-paper-deep">
                 <AreaCover area={area} />
+                <Link href={`/areas/${area.id}`} aria-label="Abrir imóvel" className="absolute inset-0 z-[1]" />
                 <div className="absolute left-2.5 top-2.5 flex flex-wrap gap-1">
                   <StatusBadge status={area.status} />
                   {area.environmentalRestriction ? (
@@ -184,12 +193,10 @@ export function AreaDirectory({ areas }: { areas: MapArea[] }) {
                 </div>
                 <div className="mt-auto flex items-center justify-between border-t border-line pt-2.5">
                   <KindBadge kind={area.kind} />
-                  <span className="inline-flex items-center gap-0.5 text-[11px] font-medium text-leaf-600">
-                    Abrir dossiê <ArrowUpRight className="h-3 w-3" />
-                  </span>
+                  <Link href={`/areas/${area.id}`} className="inline-flex items-center gap-0.5 text-[11px] font-medium text-leaf-600">Abrir dossiê <ArrowUpRight className="h-3 w-3" /></Link>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       ) : (

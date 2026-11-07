@@ -22,6 +22,7 @@ export type MapArea = {
   score: number;
   grade: string;
   coverUrl: string | null;
+  photos?: { id: number; url: string; name: string; category: string }[];
   photoCount: number;
   documentCount: number;
   geometry: GeoPolygon[];

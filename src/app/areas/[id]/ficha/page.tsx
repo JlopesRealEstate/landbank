@@ -304,10 +304,6 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
           </section>
         ) : null}
 
-        {terrain ? (
-          
-        ) : null}
-
         {city ? (
           <section className="mt-3">
             <p className="text-[8px] font-semibold uppercase tracking-[0.12em] text-muted">Indicadores IBGE · {city.name}</p>
@@ -416,10 +412,6 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
               </tbody>
             </table>
           </section>
-        ) : null}
-
-        {terrain ? (
-          
         ) : null}
 
         {city ? (

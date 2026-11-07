@@ -51,7 +51,7 @@ export async function updateSession(request: NextRequest) {
   const isDeniedPage = pathname === "/acesso-negado";
   const isAuthRoute = pathname.startsWith("/auth") || pathname === "/definir-senha";
   const isPublicPresentation = pathname.startsWith("/apresentacao/");
-  const isPublicListings = pathname === "/imoveis" || pathname.startsWith("/api/public/media/") || pathname === "/api/brand/logo";
+  const isPublicListings = pathname === "/imoveis" || pathname.startsWith("/imoveis/") || pathname.startsWith("/api/public/media/") || pathname === "/api/brand/logo";
   // Public portfolio keeps the requested friendly URL; authenticated users still see the CRM list.
   if (!user && pathname === "/areas") return NextResponse.rewrite(new URL("/imoveis", request.url));
 

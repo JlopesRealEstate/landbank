@@ -172,27 +172,11 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
                 </p>
                 <p className="text-[8px] leading-snug text-muted">{area.environmentalNotes || "—"}</p>
               </div>
-              <div className="rounded-md border border-line px-2 py-1.5">
-                <p className="text-[7px] font-semibold uppercase tracking-[0.1em] text-muted">Proprietário &amp; contato</p>
-                <p className="text-[9px] text-ink">
-                  {area.ownerName || "—"} · {area.contactName || "—"}
-                </p>
-                <p className="text-[8px] text-muted">
-                  {area.contactPhone || "Telefone do proprietário não informado"} · {area.contactEmail || "E-mail do proprietário não informado"}
-                </p>
-                {area.listingUrl ? (
-                  <p className="text-[8px] text-muted">
-                    Anúncio: <span className="text-leaf-600">{area.listingUrl.replace(/^https?:\/\//, "").slice(0, 58)}</span>
-                  </p>
-                ) : null}
+              <div className="rounded-md border border-line bg-paper/50 px-2 py-1.5">
+                <p className="text-[7px] font-semibold uppercase tracking-[0.1em] text-muted">Responsável pelo atendimento</p>
+                <p className="text-[9px] font-semibold text-ink">{loginContact.name}</p>
+                <p className="text-[8px] text-muted">{loginContact.phone} · {loginContact.email}</p>
               </div>
-              <div className="rounded-md border border-[#8c2f43]/25 bg-[#f6e8eb]/40 px-2 py-1.5">
-                <p className="text-[7px] font-semibold uppercase tracking-[0.1em] text-[#8c2f43]">Parceiro corretor</p>
-                <p className="text-[9px] font-medium text-ink">{area.partnerName || "—"}</p>
-                <p className="text-[8px] text-muted">
-                  {area.partnerPhone ? `+${area.partnerPhone.replace(/^\+/, "")}` : "telefone não informado"} ·{" "}
-                  {area.transaction === "locacao" ? "Locação" : "Venda"}
-                </p>
               </div>
             </div>
           </div>

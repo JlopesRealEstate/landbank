@@ -1,4 +1,4 @@
-import { requireAdmin } from "@/lib/authorization";
+import { requireEditor } from "@/lib/authorization";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { activities, areas, cities } from "@/db/schema";
@@ -21,7 +21,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const access = await requireAdmin();
+  const access = await requireEditor();
   if ("response" in access) return access.response;
   try {
     await ensureDatabase();

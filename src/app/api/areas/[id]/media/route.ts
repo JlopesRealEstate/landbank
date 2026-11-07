@@ -1,4 +1,5 @@
 import { requireEditor } from "@/lib/authorization";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { MAX_UPLOAD_BYTES, isAllowedMime, safeFileName } from "@/lib/validation";
 
@@ -101,15 +102,18 @@ export async function PATCH(request: Request, { params }: Params) {
     const payload = await request.json() as { mediaId?: number };
     const mediaId = Number(payload.mediaId);
     if (!Number.isInteger(mediaId) || mediaId <= 0) return Response.json({ ok: false, error: "Selecione uma foto válida." }, { status: 400 });
-    const supabase = await createClient() as any;
-    const { data: photo, error: photoError } = await supabase.from("media")
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const secret = process.env.SUPABASE_SECRET_KEY_V2 || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !secret) throw new Error("Configuração segura do Supabase indisponível.");
+    const admin = createAdminClient(supabaseUrl, secret, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data: photo, error: photoError } = await admin.from("media")
       .select("id").eq("id", mediaId).eq("area_id", areaId).eq("kind", "photo").maybeSingle();
     if (photoError) throw photoError;
     if (!photo) return Response.json({ ok: false, error: "Foto não encontrada neste imóvel." }, { status: 404 });
-    const { error: clearError } = await supabase.from("media").update({ category: "fachada" })
+    const { error: clearError } = await admin.from("media").update({ category: "fachada" })
       .eq("area_id", areaId).eq("kind", "photo").eq("category", "capa");
     if (clearError) throw clearError;
-    const { error: setError } = await supabase.from("media").update({ category: "capa", sort_order: 0 })
+    const { error: setError } = await admin.from("media").update({ category: "capa", sort_order: 0 })
       .eq("id", mediaId).eq("area_id", areaId);
     if (setError) throw setError;
     return Response.json({ ok: true, coverId: mediaId });

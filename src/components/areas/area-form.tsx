@@ -216,9 +216,9 @@ type FormState = Omit<AreaFormInitial, "lat" | "lng" | "landAreaM2" | "builtArea
 };
 
 function parseDecimalInput(value: string): number {
-  const normalized = value.trim().replace(/\\s/g, "");
+  const normalized = value.trim().replace(/\s/g, "");
   if (!normalized) return 0;
-  const canonical = normalized.includes(",") ? normalized.replace(/\\./g, "").replace(",", ".") : normalized;
+  const canonical = normalized.includes(",") ? normalized.replace(/\./g, "").replace(",", ".") : normalized;
   const parsed = Number(canonical);
   return Number.isFinite(parsed) ? parsed : 0;
 }
@@ -266,7 +266,7 @@ export function AreaForm({
   const city = cityList.find((item) => item.slug === form.citySlug);
   const suggestedTotal =
     Number(form.pricePerM2 || 0) > 0 && Number(form.landAreaM2 || 0) > 0
-      ? Math.round(Number(form.pricePerM2) * Number(form.landAreaM2))
+      ? Math.round(Number(form.pricePerM2) * Number(form.landAreaM2) * 100) / 100
       : 0;
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {

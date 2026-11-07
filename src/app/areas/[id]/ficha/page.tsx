@@ -5,7 +5,6 @@ import { getAreaById, getAreaRestrictions, getTerrainAnalysis } from "@/lib/data
 import { buildMapSnapshot } from "@/lib/map-snapshot";
 import { distancesToReferences, REFERENCE_KIND_LABELS, REFERENCE_METHOD, type ReferenceKind } from "@/lib/references";
 import { buildIntel } from "@/lib/intelligence";
-import { CONTACT } from "@/lib/contact";
 import { createClient } from "@/lib/supabase/server";
 import { ALQUEIRE_PAULISTA_M2, areaLabel, brl, dateLabel, num } from "@/lib/format";
 import { BrandMark } from "@/components/ui";
@@ -179,7 +178,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
                   {area.ownerName || "—"} · {area.contactName || "—"}
                 </p>
                 <p className="text-[8px] text-muted">
-                  {area.contactPhone || CONTACT.phoneDisplay} · {area.contactEmail || CONTACT.email}
+                  {area.contactPhone || "Telefone do proprietário não informado"} · {area.contactEmail || "E-mail do proprietário não informado"}
                 </p>
                 {area.listingUrl ? (
                   <p className="text-[8px] text-muted">

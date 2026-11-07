@@ -42,7 +42,7 @@ function NavLinks({ onNavigate, isAdmin }: { onNavigate?: () => void; isAdmin: b
   const pathname = usePathname();
   return (
     <nav className="space-y-1">
-      {NAV.filter((item) => isAdmin || !["/acessos", "/relatorios"].includes(item.href)).map((item) => {
+      {NAV.filter((item) => isAdmin || ["/", "/areas", "/mapa", "/indicadores"].includes(item.href)).map((item) => {
         const active = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
         const Icon = item.icon;
         return (
@@ -146,7 +146,8 @@ function SidebarFooter({ isAdmin }: { isAdmin: boolean }) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [roleName, setRoleName] = useState<string | null>(null);
+  const isAdmin = roleName === "admin";
 
   useEffect(() => {
     let active = true;
@@ -154,11 +155,17 @@ export function AppShell({ children }: { children: ReactNode }) {
     void supabase.auth.getUser().then(async ({ data }) => {
       if (!active || !data.user) return;
       const { data: role } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id).maybeSingle();
-      const roleName = (role as unknown as { role?: string } | null)?.role;
-      if (active) setIsAdmin(roleName === "admin");
+      const nextRole = (role as unknown as { role?: string } | null)?.role ?? "reader";
+      if (active) setRoleName(nextRole);
     });
     return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (!roleName || isAdmin) return;
+    const allowed = ["/", "/areas", "/mapa", "/indicadores"];
+    if (!allowed.some((path) => pathname === path || pathname.startsWith(path + "/"))) window.location.replace("/");
+  }, [pathname, roleName, isAdmin]);
 
   useEffect(() => {
     setOpen(false);

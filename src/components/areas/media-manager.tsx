@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import {
   Camera,
+  CheckCircle2,
   Download,
   FileSpreadsheet,
   FileText,
@@ -64,9 +65,11 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
   const [busy, setBusy] = useState<"photo" | "document" | null>(null);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [removing, setRemoving] = useState<number | null>(null);
+  const [coverBusy, setCoverBusy] = useState<number | null>(null);
 
   const photos = media.filter((item) => item.kind === "photo");
   const documents = media.filter((item) => item.kind === "document");
+  const coverPhoto = photos.find((item) => item.category === "capa");
 
   async function upload(files: FileList | null, kind: "photo" | "document") {
     if (!files || files.length === 0) return;
@@ -119,6 +122,19 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
     } finally {
       setBusy(null);
     }
+  }
+
+  async function setCover(mediaId: number) {
+    setCoverBusy(mediaId);
+    setMessage(null);
+    try {
+      const response = await fetch(`/api/areas/${areaId}/media`, { method: "PATCH", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mediaId }) });
+      const data = await response.json() as { ok: boolean; error?: string };
+      if (!response.ok || !data.ok) throw new Error(data.error ?? "Não foi possível definir a capa.");
+      setMessage({ tone: "ok", text: "Foto de capa do anúncio atualizada." });
+      router.refresh();
+    } catch (error) { setMessage({ tone: "error", text: error instanceof Error ? error.message : "Falha ao definir capa." }); }
+    finally { setCoverBusy(null); }
   }
 
   async function remove(mediaId: number) {
@@ -208,6 +224,7 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
 
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">Fotos ({photos.length}/100)</p>
+        <p className="mt-1 text-[10px] text-muted">Escolha uma foto como capa do anúncio. Ela será a primeira imagem nos cards do CRM e no portal público; as demais ficam no carrossel.</p>
         {photos.length === 0 ? (
           <p className="mt-2 rounded-lg bg-paper/60 p-3 text-[11px] text-muted">Nenhuma foto cadastrada.</p>
         ) : (
@@ -216,6 +233,11 @@ export function MediaManager({ areaId, media }: { areaId: number; media: MediaIt
               <div key={photo.id} className="group relative overflow-hidden rounded-lg border border-line">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={photo.url} alt={photo.name} className="h-24 w-full object-cover" />
+                <div className="absolute left-1 top-1 flex gap-1">
+                  <button type="button" onClick={() => void setCover(photo.id)} disabled={coverBusy !== null || photo.category === "capa"} className={cn("inline-flex items-center gap-1 rounded-md px-2 py-1 text-[9px] font-semibold shadow-sm", photo.category === "capa" ? "bg-emerald-600 text-white" : "bg-white/95 text-ink hover:bg-white", coverBusy === photo.id && "opacity-60")} title="Usar como capa do anúncio">
+                    {coverBusy === photo.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}{photo.category === "capa" ? "Capa atual" : "Definir capa"}
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={() => void remove(photo.id)}

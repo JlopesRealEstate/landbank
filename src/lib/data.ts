@@ -2,6 +2,7 @@ import "server-only";
 import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 import { activities, areaRestrictions, areas, cities, media, terrainAnalyses } from "@/db/schema";
 import type { Activity, Area, City } from "@/db/schema";
 import { ensureDatabase } from "@/db/bootstrap";
@@ -45,10 +46,20 @@ function withUrl(row: Omit<MediaMeta, "url">): MediaMeta {
 
 async function getSupabaseMediaRows(areaId?: number): Promise<MediaMeta[]> {
   try {
-    const client = await createClient();
-    const { data: { user }, error: authError } = await client.auth.getUser();
-    if (authError || !user) return [];
-    let query = client.from("media")
+    // Authenticate first, then read media metadata with the server-only key.
+    // This avoids RLS policies silently hiding existing photos from card queries.
+    const session = await createClient();
+    const { data: auth, error: authError } = await session.auth.getUser();
+    if (authError || !auth.user) return [];
+    const { data: role, error: roleError } = await session.from("user_roles")
+      .select("role").eq("user_id", auth.user.id).maybeSingle();
+    if (roleError || !["admin", "member", "reader"].includes(role?.role ?? "")) return [];
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const secret = process.env.SUPABASE_SECRET_KEY_V2 || process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !secret) throw new Error("Chave administrativa do Supabase não configurada.");
+    const admin = createAdminClient(supabaseUrl, secret, { auth: { persistSession: false, autoRefreshToken: false } });
+    let query = admin.from("media")
       .select("id,area_id,kind,category,name,mime_type,size,caption,external_url,sort_order,created_at")
       .order("sort_order", { ascending: true }).order("id", { ascending: true });
     if (areaId !== undefined) query = query.eq("area_id", areaId);
@@ -61,7 +72,6 @@ async function getSupabaseMediaRows(areaId?: number): Promise<MediaMeta[]> {
       sortOrder: row.sort_order ?? 0, createdAt: new Date(row.created_at),
     }));
   } catch (mediaError) {
-    // Never mix media metadata from a different Postgres project as a fallback.
     console.error("[media:metadata]", mediaError);
     return [];
   }

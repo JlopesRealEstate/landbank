@@ -138,7 +138,7 @@ function SidebarFooter({ isAdmin }: { isAdmin: boolean }) {
           Cadastrar área
         </Link>
       ) : null}
-      <p className="px-1 pt-1 text-[10px] text-white/35">Land Bank Corp · v{CRM_VERSION}</p>
+      <p className="px-1 pt-1 text-[10px] text-white/35">EldoradoCorp · v{CRM_VERSION}</p>
     </div>
   );
 }
@@ -175,12 +175,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-paper">
       <aside className="sticky top-0 hidden h-dvh w-[252px] shrink-0 flex-col overflow-hidden bg-forest px-4 py-5 lg:flex">
         <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-contain">
-          <Link href="/" className="flex items-center gap-3 px-1">
-            <BrandMark />
-            <div className="leading-tight">
-              <p className="text-sm font-semibold text-white">Land Bank Corp</p>
-              <p className="text-[10px] uppercase tracking-[0.16em] text-white/45">Áreas &amp; Galpões</p>
-            </div>
+          <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg bg-white p-1.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/eldoradocorp-logo.jpg" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-full max-w-[208px] object-contain" />
           </Link>
           <Link href="/atualizacoes" aria-label="Atualizações do CRM" title="Atualizações do CRM" className="absolute right-4 top-5 rounded-lg p-2 text-white/55 transition hover:bg-white/10 hover:text-white">
             <Bell className="h-4 w-4" />
@@ -199,12 +196,9 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-paper/90 px-4 py-3 backdrop-blur lg:hidden">
-          <Link href="/" className="flex items-center gap-2">
-            <BrandMark className="h-8 w-8" />
-            <div className="leading-tight">
-              <p className="text-xs font-semibold text-ink">Land Bank Corp</p>
-              <p className="text-[9px] uppercase tracking-[0.14em] text-muted">Áreas &amp; Galpões</p>
-            </div>
+          <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg bg-white px-1.5 py-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/eldoradocorp-logo.jpg" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-[170px] object-contain" />
           </Link>
           <Link href="/atualizacoes" aria-label="Atualizações do CRM" title="Atualizações do CRM" className="rounded-lg border border-line bg-white p-2 text-muted">
             <Bell className="h-4 w-4" />
@@ -230,12 +224,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="absolute inset-y-0 left-0 flex w-[min(88vw,320px)] flex-col overflow-hidden bg-forest px-4 py-5 pb-[max(1rem,env(safe-area-inset-bottom))]">
               <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain">
                 <div className="flex items-center justify-between">
-                  <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
-                    <BrandMark className="h-8 w-8" />
-                    <div className="leading-tight">
-                      <p className="text-xs font-semibold text-white">Land Bank Corp</p>
-                      <p className="text-[9px] uppercase tracking-[0.14em] text-white/45">Áreas &amp; Galpões</p>
-                    </div>
+                  <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg bg-white px-1.5 py-1" onClick={() => setOpen(false)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/eldoradocorp-logo.jpg" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-[170px] object-contain" />
                   </Link>
                   <button type="button" onClick={() => setOpen(false)} aria-label="Fechar" className="text-white/60">
                     <X className="h-5 w-5" />

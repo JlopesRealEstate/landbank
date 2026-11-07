@@ -95,6 +95,7 @@ export async function getAreas(options?: { includeArchived?: boolean }): Promise
       photoCount: photos.length,
       documentCount: documents.length,
       coverUrl: cover?.url ?? null,
+      photos: photos.map((photo) => ({ id: photo.id, url: photo.url, name: photo.name, category: photo.category })),
       hasKmz: area.geometry.length > 0 || Boolean(area.kmzFileName),
     };
   });

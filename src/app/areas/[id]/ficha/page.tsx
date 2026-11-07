@@ -179,7 +179,6 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
               </div>
               </div>
             </div>
-          </div>
 
           <div>
             <p className="text-[8px] font-semibold uppercase tracking-[0.12em] text-muted">Croqui · perímetro KMZ e curvas de nível</p>

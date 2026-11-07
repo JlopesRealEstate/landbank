@@ -38,7 +38,7 @@ const NAV = [
   { href: "/acessos", label: "Controle de acessos", icon: ShieldCheck, hint: "Usuários e permissões" },
 ];
 
-function NavLinks({ onNavigate, isAdmin }: { onNavigate?: () => void; isAdmin: boolean }) {
+function NavLinks({ onNavigate, isAdmin, canEdit }: { onNavigate?: () => void; isAdmin: boolean; canEdit: boolean }) {
   const pathname = usePathname();
   return (
     <nav className="space-y-1">
@@ -125,11 +125,11 @@ function AuthActions() {
   );
 }
 
-function SidebarFooter({ isAdmin }: { isAdmin: boolean }) {
+function SidebarFooter({ isAdmin, canEdit }: { isAdmin: boolean; canEdit: boolean }) {
   return (
     <div className="w-full space-y-2">
       <AuthActions />
-      {isAdmin ? (
+      {canEdit ? (
         <Link
           href="/areas/nova"
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 px-3 py-2.5 text-sm font-medium text-white ring-1 ring-inset ring-white/15 transition hover:bg-white/15"
@@ -148,6 +148,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [roleName, setRoleName] = useState<string | null>(null);
   const isAdmin = roleName === "admin";
+  const canEdit = isAdmin || roleName === "member";
 
   useEffect(() => {
     let active = true;
@@ -188,10 +189,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
           <div className="mt-6">
             <p className="mb-2 px-3 text-[9px] font-semibold uppercase tracking-[0.2em] text-white/35">Navegação</p>
-            <NavLinks isAdmin={isAdmin} />
+            <NavLinks isAdmin={isAdmin} canEdit={canEdit} />
           </div>
         </div>
-        <div className="w-full shrink-0 border-t border-white/10 bg-forest pt-3"><SidebarFooter isAdmin={isAdmin} /></div>
+        <div className="w-full shrink-0 border-t border-white/10 bg-forest pt-3"><SidebarFooter isAdmin={isAdmin} canEdit={canEdit} /></div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -233,10 +234,10 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </button>
                 </div>
                 <div className="mt-6">
-                  <NavLinks isAdmin={isAdmin} onNavigate={() => setOpen(false)} />
+                  <NavLinks isAdmin={isAdmin} canEdit={canEdit} onNavigate={() => setOpen(false)} />
                 </div>
               </div>
-              <div className="w-full shrink-0 border-t border-white/10 pt-3"><SidebarFooter isAdmin={isAdmin} /></div>
+              <div className="w-full shrink-0 border-t border-white/10 pt-3"><SidebarFooter isAdmin={isAdmin} canEdit={canEdit} /></div>
             </div>
           </div>
         ) : null}

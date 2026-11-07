@@ -325,13 +325,14 @@ export function PhotoMosaic({ photos }: { photos: { id: number; url: string; nam
   );
 }
 
-export function FichaContactBlock({ className }: { className?: string }) {
+export function FichaContactBlock({ className, contact }: { className?: string; contact?: { name: string; phone: string; email: string } }) {
+  const details = contact ?? { name: CONTACT.name, phone: CONTACT.phoneDisplay, email: CONTACT.email };
   return (
     <div className={cn("rounded-lg border border-line bg-paper/60 px-2.5 py-2 text-[9px] leading-relaxed text-ink-soft", className)}>
-      <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-muted">Contato comercial</p>
-      <p className="mt-0.5 text-[10px] font-semibold text-ink">{CONTACT.name} · Land Bank Corp</p>
-      <p>{CONTACT.phoneDisplay}</p>
-      <p>{CONTACT.email}</p>
+      <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-muted">Contato do usuário emissor</p>
+      <p className="mt-0.5 text-[10px] font-semibold text-ink">{details.name} · Land Bank Corp</p>
+      <p>{details.phone}</p>
+      <p>{details.email}</p>
     </div>
   );
 }

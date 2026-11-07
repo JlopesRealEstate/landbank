@@ -1,5 +1,16 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.5.0 — 07/11/2026
+- Cards de Áreas & Galpões recebem carrossel navegável com todas as fotos do imóvel, mantendo arquivos privados protegidos por autenticação.
+- Corrigido o cálculo sugerido do valor total para entradas decimais brasileiras (ex.: 350,50 × 15.000), sem ocultar o botão de ação.
+- Contas convidadas ficam limitadas no proxy do servidor aos módulos Painel Executivo, Áreas & Galpões, Mapa Interativo e Indicadores IBGE; continuam somente leitura.
+- PDF da ficha remove estimativas de corte, aterro, custo e parecer de terraplenagem; mantém somente perfil altimétrico indicativo e métricas de cotas/declividade.
+- PDF identifica o usuário emissor pelo nome, telefone e e-mail da sessão autenticada.
+- Apresentação utiliza o mesmo croqui cartográfico da ficha PDF, com perímetro KMZ, curvas de nível e restrições, sem mapa de calor.
+- Novo portal público /imoveis lista somente ativos com status disponível, com filtros, KPIs, gráficos e fotos servidas por URLs assinadas de curta duração. Não expõe documentos, proprietários, contatos privados ou benchmark.
+- Build e implantação em produção sujeitos à validação após os commits.
+
+
 ## 1.4.3 — 07/11/2026
 - Área do terreno, área construída, preço por m² e valor total aceitam decimais; vírgula brasileira (55,80; 16,5) e ponto decimal são normalizados corretamente.
 - Cálculo automático do valor total preserva centavos.

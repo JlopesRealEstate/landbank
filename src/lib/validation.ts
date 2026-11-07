@@ -13,7 +13,12 @@ const text = (value: unknown, fallback = ""): string =>
   typeof value === "string" ? value.trim() : value === null || value === undefined ? fallback : String(value).trim();
 
 const positive = (value: unknown): number => {
-  const parsed = typeof value === "string" ? Number(value.replace(/\./g, "").replace(",", ".")) : Number(value);
+  const raw = typeof value === "string" ? value.trim().replace(/\\s/g, "") : value;
+  if (raw === "" || raw === null || raw === undefined) return 0;
+  const normalized = typeof raw === "string" && raw.includes(",")
+    ? raw.replace(/\\./g, "").replace(",", ".")
+    : raw;
+  const parsed = Number(normalized);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 };
 
@@ -75,7 +80,7 @@ export function parseAreaInput(body: unknown): ParsedArea {
   const pricePerM2 = positive(input.pricePerM2);
   let totalPrice = positive(input.totalPrice);
   if (totalPrice === 0 && pricePerM2 > 0 && landAreaM2 > 0) {
-    totalPrice = Math.round(pricePerM2 * landAreaM2);
+    totalPrice = Math.round(pricePerM2 * landAreaM2 * 100) / 100;
   }
   if (landAreaM2 <= 0) errors.push("Informe a metragem do terreno em m².");
   if (pricePerM2 <= 0) errors.push("Informe o valor por m².");

@@ -19,6 +19,7 @@ import {
   Plus,
   Sparkles,
   ShieldCheck,
+  Settings,
   X,
 } from "lucide-react";
 import { FileBarChart, Archive } from "lucide-react";
@@ -36,6 +37,7 @@ const NAV = [
   { href: "/consultas", label: "Consultas", icon: Archive, hint: "Vendidos e cancelados" },
   { href: "/documentacao", label: "Documentação", icon: BookOpen, hint: "Manual e ajuda" },
   { href: "/acessos", label: "Controle de acessos", icon: ShieldCheck, hint: "Usuários e permissões" },
+  { href: "/configuracoes", label: "Configurações", icon: Settings, hint: "Marca e parâmetros" },
 ];
 
 function NavLinks({ onNavigate, isAdmin, canEdit }: { onNavigate?: () => void; isAdmin: boolean; canEdit: boolean }) {
@@ -178,7 +180,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-contain">
           <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg bg-white p-1.5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/eldoradocorp-logo.jpg" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-full max-w-[208px] object-contain" />
+            <img src="/api/brand/logo" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-full max-w-[208px] object-contain" />
           </Link>
           <Link href="/atualizacoes" aria-label="Atualizações do CRM" title="Atualizações do CRM" className="absolute right-4 top-5 rounded-lg p-2 text-white/55 transition hover:bg-white/10 hover:text-white">
             <Bell className="h-4 w-4" />
@@ -199,7 +201,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-line bg-paper/90 px-4 py-3 backdrop-blur lg:hidden">
           <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg bg-white px-1.5 py-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/eldoradocorp-logo.jpg" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-[170px] object-contain" />
+            <img src="/api/brand/logo" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-[170px] object-contain" />
           </Link>
           <Link href="/atualizacoes" aria-label="Atualizações do CRM" title="Atualizações do CRM" className="rounded-lg border border-line bg-white p-2 text-muted">
             <Bell className="h-4 w-4" />
@@ -227,7 +229,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <div className="flex items-center justify-between">
                   <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg bg-white px-1.5 py-1" onClick={() => setOpen(false)}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/eldoradocorp-logo.jpg" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-[170px] object-contain" />
+                    <img src="/api/brand/logo" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-[170px] object-contain" />
                   </Link>
                   <button type="button" onClick={() => setOpen(false)} aria-label="Fechar" className="text-white/60">
                     <X className="h-5 w-5" />

@@ -13,10 +13,10 @@ const text = (value: unknown, fallback = ""): string =>
   typeof value === "string" ? value.trim() : value === null || value === undefined ? fallback : String(value).trim();
 
 const positive = (value: unknown): number => {
-  const raw = typeof value === "string" ? value.trim().replace(/\\s/g, "") : value;
+  const raw = typeof value === "string" ? value.trim().replace(/\s/g, "") : value;
   if (raw === "" || raw === null || raw === undefined) return 0;
   const normalized = typeof raw === "string" && raw.includes(",")
-    ? raw.replace(/\\./g, "").replace(",", ".")
+    ? raw.replace(/\./g, "").replace(",", ".")
     : raw;
   const parsed = Number(normalized);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;

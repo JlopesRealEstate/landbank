@@ -51,7 +51,9 @@ export async function updateSession(request: NextRequest) {
   const isDeniedPage = pathname === "/acesso-negado";
   const isAuthRoute = pathname.startsWith("/auth") || pathname === "/definir-senha";
   const isPublicPresentation = pathname.startsWith("/apresentacao/");
-  const isPublicListings = pathname === "/imoveis" || pathname.startsWith("/api/public/media/");
+  const isPublicListings = pathname === "/imoveis" || pathname.startsWith("/api/public/media/") || pathname === "/api/brand/logo";
+  // Public portfolio keeps the requested friendly URL; authenticated users still see the CRM list.
+  if (!user && pathname === "/areas") return NextResponse.rewrite(new URL("/imoveis", request.url));
 
   let authorized = false;
   let userRole: string | null = null;
@@ -92,6 +94,7 @@ export async function updateSession(request: NextRequest) {
   if (user && authorized && userRole !== "admin") {
     const guestAllowed =
       pathname === "/" ||
+      (userRole === "member" && pathname.startsWith("/areas")) ||
       (pathname.startsWith("/areas") && !pathname.startsWith("/areas/nova") && !pathname.includes("/editar")) ||
       pathname.startsWith("/mapa") ||
       pathname.startsWith("/indicadores") ||
@@ -109,9 +112,9 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  if (user && authorized && userRole !== "admin" && ["POST", "PUT", "PATCH", "DELETE"].includes(request.method) && !isAuthRoute && !isPublicPresentation) {
+  if (user && authorized && userRole === "reader" && ["POST", "PUT", "PATCH", "DELETE"].includes(request.method) && !isAuthRoute && !isPublicPresentation) {
     if (pathname.startsWith("/api/")) {
-      return Response.json({ ok: false, error: "Perfil somente leitura: apenas administradores podem cadastrar, editar, excluir ou enviar arquivos." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+      return Response.json({ ok: false, error: "Perfil somente leitura: solicite ao administrador a permissão Editor para cadastrar, editar ou enviar arquivos." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
     }
     return new NextResponse("Perfil somente leitura: esta operação não é permitida.", { status: 403, headers: { "Cache-Control": "private, no-store" } });
   }

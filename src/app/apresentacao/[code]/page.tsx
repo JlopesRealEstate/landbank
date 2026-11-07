@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getAreaByCode, getTerrainAnalysis } from "@/lib/data";
+import { getAreaByCode, getAreaRestrictions, getTerrainAnalysis } from "@/lib/data";
+import { buildMapSnapshot } from "@/lib/map-snapshot";
 import { buildIntel } from "@/lib/intelligence";
 import { toMapArea } from "@/lib/map-data";
 import { PresentationView } from "@/components/presentation/presentation-view";
@@ -23,8 +24,21 @@ export default async function PresentationPage({ params }: { params: Promise<{ c
   if (!result) notFound();
 
   const { area, media, city } = result;
-  const terrain = await getTerrainAnalysis(area.id);
+  const [terrain, restrictions] = await Promise.all([getTerrainAnalysis(area.id), getAreaRestrictions(area.id)]);
   const mapArea = toMapArea(area, city);
+  const savedView = area.mapView;
+  const mapSnapshot = await buildMapSnapshot({
+    basemap: savedView?.basemap ?? "satelite",
+    lat: savedView?.lat ?? area.lat,
+    lng: savedView?.lng ?? area.lng,
+    zoom: savedView?.zoom ?? 16,
+    contourScope: savedView?.contourScope ?? "inside",
+    heatmapMode: savedView?.heatmapMode ?? "elevation",
+    heatmapScope: savedView?.heatmapScope ?? "inside",
+    heatmapOpacity: savedView?.heatmapOpacity ?? 60,
+    contours: true,
+    heatmap: false,
+  }, 900, 470).catch(() => null);
   const intel = buildIntel(area, city, { photos: area.photoCount, documents: area.documentCount });
 
   return (
@@ -44,6 +58,8 @@ export default async function PresentationPage({ params }: { params: Promise<{ c
       elevationRange={
         terrain?.stats ? { min: terrain.stats.minElevation, max: terrain.stats.maxElevation } : null
       }
+      snapshot={mapSnapshot}
+      restrictions={restrictions.map((item) => ({ id: item.id, type: item.type, label: item.label || item.type, coordinates: item.coordinates }))}
       media={media.filter((item) => item.kind === "photo").map((item) => ({
         id: item.id,
         kind: item.kind,

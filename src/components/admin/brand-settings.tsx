@@ -9,7 +9,7 @@ export function BrandSettings() {
   const [message, setMessage] = useState<string | null>(null);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!file) { setMessage("Selecione o novo logotipo em JPG."); return; }
+    if (!file) { setMessage("Selecione o novo logotipo em JPG ou PNG."); return; }
     setBusy(true); setMessage(null);
     try {
       const body = new FormData(); body.set("logo", file);
@@ -30,8 +30,8 @@ export function BrandSettings() {
     <p className="mt-1 text-sm text-muted">O logotipo institucional é armazenado no banco de dados e exibido no CRM e no portal público. Somente administradores podem substituí-lo.</p>
     <div className="mt-4 rounded-xl border border-line bg-paper p-4"><p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted">Logotipo atual</p><img src="/api/brand/logo" alt="Logotipo EldoradoCorp atual" className="max-h-28 max-w-full rounded bg-white object-contain p-2" /></div>
     <form onSubmit={submit} className="mt-4 space-y-3">
-      <label className="block text-xs font-medium">Substituir logotipo (JPG, até 2 MB)
-        <input id="brand-logo-file" type="file" accept=".jpg,.jpeg,image/jpeg" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="mt-1 block w-full rounded-lg border border-line p-2 text-xs" />
+      <label className="block text-xs font-medium">Substituir logotipo (JPG ou PNG transparente, até 2 MB)
+        <input id="brand-logo-file" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="mt-1 block w-full rounded-lg border border-line p-2 text-xs" />
       </label>
       <button disabled={busy || !file} className="inline-flex items-center gap-2 rounded-lg bg-forest px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">{busy ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} Salvar logotipo</button>
       {message ? <p role="status" className="text-xs text-muted">{message}</p> : null}

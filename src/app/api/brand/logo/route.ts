@@ -32,14 +32,14 @@ export async function POST(request: Request) {
     const form = await request.formData();
     const file = form.get("logo");
     if (!(file instanceof File)) return Response.json({ ok: false, error: "Selecione um arquivo JPG." }, { status: 400 });
-    if (file.type !== "image/jpeg" || file.size < 100 || file.size > 2 * 1024 * 1024) {
-      return Response.json({ ok: false, error: "O logotipo deve estar em JPG e ter até 2 MB." }, { status: 415 });
+    if (!["image/jpeg", "image/png"].includes(file.type) || file.size < 100 || file.size > 2 * 1024 * 1024) {
+      return Response.json({ ok: false, error: "O logotipo deve estar em JPG ou PNG (com transparência), até 2 MB." }, { status: 415 });
     }
     const bytes = Buffer.from(await file.arrayBuffer());
     const admin = adminClient();
     const { error } = await admin.from("app_settings").upsert({
       key: "brand_logo",
-      value: { mimeType: "image/jpeg", fileName: file.name.slice(0, 160), data: bytes.toString("base64") },
+      value: { mimeType: file.type, fileName: file.name.slice(0, 160), data: bytes.toString("base64") },
       updated_at: new Date().toISOString(),
       updated_by: access.userId,
     }, { onConflict: "key" });

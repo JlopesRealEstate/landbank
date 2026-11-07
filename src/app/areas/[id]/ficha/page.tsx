@@ -44,12 +44,13 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
     phone: String(auth.user?.user_metadata?.phone ?? auth.user?.phone ?? "Telefone não informado"),
     email: auth.user?.email ?? "E-mail não informado",
   };
+  const loginPhoneDigits = loginContact.phone.replace(/\\D/g, "");
+  const loginWhatsAppPhone = loginPhoneDigits.length === 10 || loginPhoneDigits.length === 11 ? "55" + loginPhoneDigits : loginPhoneDigits;
   const terrain = await getTerrainAnalysis(numericId);
   const restrictions = await getAreaRestrictions(numericId);
   const intel = buildIntel(area, city, { photos: area.photoCount, documents: area.documentCount });
   const photos = media.filter((item) => item.kind === "photo");
   const documents = media.filter((item) => item.kind === "document");
-  const grading = terrain?.grading;
   const stats = terrain?.stats;
   const occupancy = area.landAreaM2 > 0 ? (area.builtAreaM2 / area.landAreaM2) * 100 : 0;
   const restrictedM2 = restrictions.reduce((sum, item) => sum + item.areaM2, 0);
@@ -218,7 +219,7 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
           </div>
         </section>
 
-        {terrain && stats && grading ? (
+        {terrain && stats ? (
           <section className="mt-3 break-inside-avoid rounded-lg border border-line p-2.5">
             <p className="text-[9px] font-semibold text-ink">Perfil altimétrico do terreno</p>
             {stats ? <div className="mt-1 grid grid-cols-4 gap-1.5">
@@ -639,10 +640,8 @@ export default async function FichaPage({ params }: { params: Promise<{ id: stri
           <div className="text-[7px] leading-relaxed text-muted">
             <p className="font-semibold uppercase tracking-[0.1em] text-ink-soft">Falar com o consultor</p>
             <p className="mt-0.5 text-[8px] text-ink">
-              <a href={`https://wa.me/${CONTACT.phoneE164}?text=${encodeURIComponent(`Tenho interesse no ativo ${area.code} — ${area.name}`)}`} className="font-semibold text-[#8c2f43]">
-                WhatsApp {CONTACT.phoneDisplay}
-              </a>{" "}
-              · <a href={`mailto:${CONTACT.email}`} className="text-leaf-600">{CONTACT.email}</a>
+              {loginWhatsAppPhone ? <a href={`https://wa.me/${loginWhatsAppPhone}?text=${encodeURIComponent(`Tenho interesse no ativo ${area.code} — ${area.name}`)}`} className="font-semibold text-[#8c2f43]">WhatsApp {loginContact.phone}</a> : <span>{loginContact.phone}</span>}
+              {" "}· <a href={`mailto:${loginContact.email}`} className="text-leaf-600">{loginContact.email}</a>
             </p>
             <p className="mt-1 font-semibold uppercase tracking-[0.1em] text-ink-soft">Observações</p>
             <p className="mt-0.5">

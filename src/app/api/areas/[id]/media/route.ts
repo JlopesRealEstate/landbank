@@ -91,3 +91,30 @@ export async function POST(request: Request, { params }: Params) {
     return Response.json({ ok: false, error: `Falha ao registrar arquivo: ${detail.slice(0, 220)}` }, { status: 500 });
   }
 }
+
+export async function PATCH(request: Request, { params }: Params) {
+  const access = await requireEditor();
+  if ("response" in access) return access.response;
+  const areaId = Number((await params).id);
+  if (!Number.isInteger(areaId)) return Response.json({ ok: false, error: "ID inválido." }, { status: 400 });
+  try {
+    const payload = await request.json() as { mediaId?: number };
+    const mediaId = Number(payload.mediaId);
+    if (!Number.isInteger(mediaId) || mediaId <= 0) return Response.json({ ok: false, error: "Selecione uma foto válida." }, { status: 400 });
+    const supabase = await createClient() as any;
+    const { data: photo, error: photoError } = await supabase.from("media")
+      .select("id").eq("id", mediaId).eq("area_id", areaId).eq("kind", "photo").maybeSingle();
+    if (photoError) throw photoError;
+    if (!photo) return Response.json({ ok: false, error: "Foto não encontrada neste imóvel." }, { status: 404 });
+    const { error: clearError } = await supabase.from("media").update({ category: "fachada" })
+      .eq("area_id", areaId).eq("kind", "photo").eq("category", "capa");
+    if (clearError) throw clearError;
+    const { error: setError } = await supabase.from("media").update({ category: "capa", sort_order: 0 })
+      .eq("id", mediaId).eq("area_id", areaId);
+    if (setError) throw setError;
+    return Response.json({ ok: true, coverId: mediaId });
+  } catch (error) {
+    console.error("[areas:id:media:cover]", error);
+    return Response.json({ ok: false, error: "Não foi possível definir a foto de capa." }, { status: 500 });
+  }
+}

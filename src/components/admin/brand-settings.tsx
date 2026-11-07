@@ -28,7 +28,7 @@ export function BrandSettings() {
   return <section className="max-w-2xl rounded-2xl border border-line bg-white p-5">
     <div className="flex items-center gap-2"><ImageUp className="h-5 w-5 text-leaf" /><h2 className="font-semibold">Identidade visual</h2></div>
     <p className="mt-1 text-sm text-muted">O logotipo institucional é armazenado no banco de dados e exibido no CRM e no portal público. Somente administradores podem substituí-lo.</p>
-    <div className="mt-4 rounded-xl border border-line bg-paper p-4"><p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted">Logotipo atual</p><img src="/api/brand/logo" alt="Logotipo EldoradoCorp atual" className="max-h-28 max-w-full rounded bg-white object-contain p-2" /></div>
+    <div className="mt-4 rounded-xl border border-line bg-forest p-4"><p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-muted">Logotipo atual</p><img src="/api/brand/logo" alt="Logotipo EldoradoCorp atual" className="max-h-28 max-w-full object-contain" /></div>
     <form onSubmit={submit} className="mt-4 space-y-3">
       <label className="block text-xs font-medium">Substituir logotipo (JPG ou PNG transparente, até 2 MB)
         <input id="brand-logo-file" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="mt-1 block w-full rounded-lg border border-line p-2 text-xs" />

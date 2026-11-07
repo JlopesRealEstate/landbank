@@ -215,6 +215,14 @@ type FormState = Omit<AreaFormInitial, "lat" | "lng" | "landAreaM2" | "builtArea
   totalPrice: string;
 };
 
+function parseDecimalInput(value: string): number {
+  const normalized = value.trim().replace(/\\s/g, "");
+  if (!normalized) return 0;
+  const canonical = normalized.includes(",") ? normalized.replace(/\\./g, "").replace(",", ".") : normalized;
+  const parsed = Number(canonical);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 function toFormState(initial: AreaFormInitial): FormState {
   return {
     ...initial,
@@ -415,10 +423,10 @@ export function AreaForm({
       city: form.city || cityQuery,
       lat: Number(form.lat),
       lng: Number(form.lng),
-      landAreaM2: Number(form.landAreaM2 || 0),
-      builtAreaM2: Number(form.builtAreaM2 || 0),
-      pricePerM2: Number(form.pricePerM2 || 0),
-      totalPrice: Number(form.totalPrice || 0),
+      landAreaM2: parseDecimalInput(form.landAreaM2),
+      builtAreaM2: parseDecimalInput(form.builtAreaM2),
+      pricePerM2: parseDecimalInput(form.pricePerM2),
+      totalPrice: parseDecimalInput(form.totalPrice),
     };
     try {
       const response = await fetch(mode === "create" ? "/api/areas" : `/api/areas/${initial?.id}`, {
@@ -770,9 +778,8 @@ export function AreaForm({
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <Field help="metragens.landAreaM2" label="Área do terreno (m²) *" hint={Number(form.landAreaM2) > 0 ? areaLabel(Number(form.landAreaM2)) : undefined}>
                 <input
-                  type="number"
-                  min={0}
-                  step="1"
+                  type="text"
+                  inputMode="decimal"
                   value={form.landAreaM2}
                   onChange={(event) => update("landAreaM2", event.target.value)}
                   className={inputClass}
@@ -781,9 +788,8 @@ export function AreaForm({
               </Field>
               <Field help="metragens.builtAreaM2" label="Área construída (m²)" hint={Number(form.builtAreaM2) > 0 ? areaLabel(Number(form.builtAreaM2)) : "Opcional para terrenos"}>
                 <input
-                  type="number"
-                  min={0}
-                  step="1"
+                  type="text"
+                  inputMode="decimal"
                   value={form.builtAreaM2}
                   onChange={(event) => update("builtAreaM2", event.target.value)}
                   className={inputClass}
@@ -791,9 +797,8 @@ export function AreaForm({
               </Field>
               <Field help="metragens.pricePerM2" label="Valor por m² (R$) *">
                 <input
-                  type="number"
-                  min={0}
-                  step="1"
+                  type="text"
+                  inputMode="decimal"
                   value={form.pricePerM2}
                   onChange={(event) => update("pricePerM2", event.target.value)}
                   className={inputClass}
@@ -806,9 +811,8 @@ export function AreaForm({
               >
                 <div className="flex gap-1.5">
                   <input
-                    type="number"
-                    min={0}
-                    step="1"
+                    type="text"
+                    inputMode="decimal"
                     value={form.totalPrice}
                     onChange={(event) => update("totalPrice", event.target.value)}
                     className={inputClass}

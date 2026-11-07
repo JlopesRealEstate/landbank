@@ -19,8 +19,8 @@ export default async function PublicListingsPage() {
   let photoMap = new Map<number, { id: number; url: string; name: string }[]>();
   if (url && key && ids.length) {
     const admin = createSupabaseClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-    const { data } = await admin.from("media").select("id,area_id,name,kind,sort_order").in("area_id", ids).eq("kind", "photo").order("sort_order", { ascending: true });
-    for (const item of data ?? []) {
+    const { data } = await admin.from("media").select("id,area_id,name,kind,category,sort_order").in("area_id", ids).eq("kind", "photo").order("sort_order", { ascending: true });
+    for (const item of [...(data ?? [])].sort((a,b) => Number(b.category === "capa") - Number(a.category === "capa") || a.sort_order - b.sort_order)) {
       const list = photoMap.get(item.area_id) ?? [];
       list.push({ id: item.id, url: "/api/public/media/" + item.id, name: item.name });
       photoMap.set(item.area_id, list);

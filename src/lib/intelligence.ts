@@ -8,6 +8,7 @@ export type AreaRecord = Area & {
   photoCount: number;
   documentCount: number;
   coverUrl: string | null;
+  photos?: { id: number; url: string; name: string; category: string }[];
   hasKmz: boolean;
 };
 

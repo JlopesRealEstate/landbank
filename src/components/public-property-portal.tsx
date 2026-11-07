@@ -39,7 +39,7 @@ export function PublicPropertyPortal({ listings }: { listings: Listing[] }) {
   const byKind=[{name:"Terrenos",count:filtered.filter(x=>x.kind==="terreno").length},{name:"Galpões",count:filtered.filter(x=>x.kind==="galpao").length},{name:"Uso misto",count:filtered.filter(x=>x.kind==="misto").length}];
   return <main className="min-h-screen bg-[#f5f3ef] text-[#102b34]">
     <header className="bg-[#0b2a35] text-white"><div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <p className="text-[10px] font-semibold uppercase tracking-[.22em] text-[#d5b56b]">Land Bank Corp · Áreas & Galpões</p>
+      {/* eslint-disable-next-line @next/next/no-img-element */}<img src="/eldoradocorp-logo.jpg" alt="EldoradoCorp Imóveis Corporativos" className="mb-5 h-auto w-[min(100%,360px)] rounded bg-white p-2" />
       <div className="mt-3 flex flex-wrap items-end justify-between gap-4"><div><h1 className="text-3xl font-semibold sm:text-4xl">Oportunidades imobiliárias</h1><p className="mt-2 max-w-2xl text-sm text-white/65">Ativos disponíveis para desenvolvimento industrial, logístico, comercial e residencial.</p></div><a href={CONTACT.whatsapp("Olá! Gostaria de conhecer as oportunidades disponíveis no portfólio Land Bank Corp.")} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-xl bg-[#d5b56b] px-4 py-3 text-sm font-semibold text-[#0b2a35]"><MessageCircle className="h-4 w-4"/>Falar com um consultor</a></div>
     </div></header>
     <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -76,7 +76,7 @@ export function PublicPropertyPortal({ listings }: { listings: Listing[] }) {
           </div></article>})}
         {filtered.length===0?<div className="rounded-2xl border border-dashed border-[#d7d0c5] p-12 text-center text-sm text-[#63747a] md:col-span-2 xl:col-span-3">Nenhum imóvel corresponde aos filtros. Ajuste os critérios e tente novamente.</div>:null}
       </section>
-      <footer className="border-t border-[#e3ded5] py-5 text-center text-xs text-[#63747a]">Land Bank Corp · Áreas & Galpões · Informações sujeitas à confirmação documental e disponibilidade.</footer>
+      <footer className="border-t border-[#e3ded5] py-5 text-center text-xs text-[#63747a]">EldoradoCorp · Imóveis Corporativos · Informações sujeitas à confirmação documental e disponibilidade.</footer>
     </div>
   </main>;
 }

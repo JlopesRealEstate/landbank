@@ -178,13 +178,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="flex min-h-screen bg-paper">
       <aside className="sticky top-0 hidden h-dvh w-[252px] shrink-0 flex-col overflow-hidden bg-forest px-4 py-5 lg:flex">
         <div className="flex min-h-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-contain">
-          <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex items-center rounded-lg bg-white p-1.5">
+          <div className="relative flex items-center justify-between gap-2 rounded-lg bg-white p-1.5 pr-10">
+          <Link href="/" aria-label="EldoradoCorp Imóveis Corporativos" className="flex min-w-0 flex-1 items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/api/brand/logo" alt="EldoradoCorp Imóveis Corporativos" className="h-auto w-full max-w-[208px] object-contain" />
           </Link>
-          <Link href="/atualizacoes" aria-label="Atualizações do CRM" title="Atualizações do CRM" className="absolute right-4 top-5 rounded-lg p-2 text-white/55 transition hover:bg-white/10 hover:text-white">
+          <Link href="/atualizacoes" aria-label="Atualizações do CRM" title="Atualizações do CRM" className="absolute right-1 top-1 rounded-lg p-2 text-forest/70 transition hover:bg-paper hover:text-forest">
             <Bell className="h-4 w-4" />
           </Link>
+          </div>
           <div className="mt-5 flex items-center gap-2 rounded-full bg-forest-600 px-3 py-1.5 text-[10px] text-white/60 ring-1 ring-inset ring-white/10">
             <span className="h-1.5 w-1.5 rounded-full bg-lime" />
             Sumaré · RMC · Piracicaba

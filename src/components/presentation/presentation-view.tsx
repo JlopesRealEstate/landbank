@@ -28,6 +28,7 @@ import { ALQUEIRE_PAULISTA_M2, areaLabel, brl, num } from "@/lib/format";
 import { CONTACT } from "@/lib/contact";
 import { BrandMark, Card, CityIndicators, KindBadge, StatusBadge, cn } from "@/components/ui";
 import type { AreaIntel } from "@/lib/intelligence";
+import { FichaMapSketch } from "@/components/areas/ficha-export";
 
 const MapCanvas = dynamic(() => import("@/components/map/map-canvas").then((mod) => mod.MapCanvas), {
   ssr: false,
@@ -52,6 +53,8 @@ export function PresentationView({
   media,
   contours = [],
   elevationRange = null,
+  restrictions = [],
+  snapshot = null,
 }: {
   area: MapArea & { description: string; zoningNotes: string; environmentalNotes: string; contactName: string; contactPhone: string; contactEmail: string };
   intel: AreaIntel;
@@ -59,6 +62,8 @@ export function PresentationView({
   media: PresentationMedia[];
   contours?: { elevation: number; coordinates: [number, number][]; kind: string; inside?: boolean }[];
   elevationRange?: { min: number; max: number } | null;
+  restrictions?: { id: number; type: string; label: string; coordinates: [number, number][] }[];
+  snapshot?: { width: number; height: number; zoom: number; basemap: string; tiles: { url: string; x: number; y: number; size: number }[]; bounds: { north: number; south: number; east: number; west: number }; attribution: string; available: boolean } | null;
 }) {
   const photos = media.filter((item) => item.kind === "photo");
   const documents = media.filter((item) => item.kind === "document");
@@ -222,66 +227,23 @@ export function PresentationView({
             </Card>
 
             <Card className="overflow-hidden">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line px-3 py-2">
+              <div className="border-b border-line px-3 py-2">
                 <h2 className="text-sm font-semibold">Localização e perímetro</h2>
-                <div className="flex items-center rounded-md border border-line bg-paper p-0.5">
-                  <button
-                    type="button"
-                    onClick={() => setFitSignal((value) => value + 1)}
-                    className="mr-1 rounded px-2 py-1 text-[10px] font-medium text-ink-soft hover:bg-white"
-                    title="Centralizar no KMZ"
-                  >
-                    centralizar
-                  </button>
-                  {(Object.keys(BASEMAPS) as BasemapId[]).map((key) => {
-                    const Icon = ICONS[key];
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setBasemap(key)}
-                        className={cn(
-                          "flex items-center gap-1 rounded px-2 py-1 text-[10px] font-medium",
-                          basemap === key ? "bg-white text-ink shadow-sm" : "text-muted hover:text-ink",
-                        )}
-                      >
-                        <Icon className="h-3 w-3" /> {BASEMAPS[key].short}
-                      </button>
-                    );
-                  })}
-                </div>
+                <p className="mt-0.5 text-[10px] text-muted">Croqui · perímetro KMZ e curvas de nível — mesma composição cartográfica da ficha PDF</p>
               </div>
-              <div className="h-[380px]">
-                <MapCanvas
-                  areas={[area]}
-                  selectedId={area.id}
-                  basemap={basemap}
-                  fitToAreas
-                  showPopup={false}
+              <div className="p-3">
+                <FichaMapSketch
+                  geometry={area.geometry}
                   contours={contours.filter((contour) => contour.inside !== false)}
-                  elevationRange={elevationRange}
-                  heatmap={null}
-                  fitSignal={fitSignal}
-                  className="h-full w-full"
+                  restrictions={restrictions}
+                  snapshot={snapshot}
+                  showContours={true}
+                  showHeatmap={false}
+                  contourScope="inside"
                 />
               </div>
-              <div className="grid gap-2 border-t border-line p-3 text-[10px] sm:grid-cols-3">
-                <p className="text-muted">
-                  Coordenadas <strong className="block text-[11px] text-ink-soft">{area.lat.toFixed(5)}, {area.lng.toFixed(5)}</strong>
-                </p>
-                <p className="text-muted">
-                  Distância de Viracopos <strong className="block text-[11px] text-ink-soft">{num(intel.distances.viracopos, 1)} km</strong>
-                </p>
-                <p className="text-muted">
-                  Hub mais próximo <strong className="block text-[11px] text-ink-soft">{intel.bestHub} · {num(intel.bestHubKm, 1)} km</strong>
-                </p>
-                {contours.length ? (
-                  <p className="text-muted sm:col-span-3">
-                    Curvas de nível <strong className="text-[11px] text-ink-soft">{contours.length} traçados sobrepostos à demarcação</strong>
-                    {" "}· linhas em bordô indicam curvas mestras
-
-                  </p>
-                ) : null}
+              <div className="border-t border-line px-3 py-2 text-[10px] text-muted">
+                {area.geometry.length} polígono(s) KMZ · {contours.length} curvas de nível · {restrictions.length} restrições demarcadas
               </div>
             </Card>
 

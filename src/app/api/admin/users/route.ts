@@ -78,7 +78,19 @@ export async function POST(request: Request) {
       data: fullName ? { full_name: fullName } : {},
       redirectTo: new URL("/auth/confirm?next=/definir-senha", request.url).toString(),
     });
-    if (inviteError) throw inviteError;
+    if (inviteError) {
+      console.error("[admin:invite:provider]", {
+        status: inviteError.status,
+        code: inviteError.code,
+        message: inviteError.message,
+        name: inviteError.name,
+      });
+      const providerMessage = inviteError.message || "Falha do provedor de e-mail.";
+      const isMailDeliveryFailure = /email|mail|smtp|send/i.test(providerMessage);
+      throw new Error(isMailDeliveryFailure
+        ? `O Supabase Auth recusou o envio do e-mail de convite: ${providerMessage}. Verifique SMTP/Email Provider no Supabase. O convite não foi concluído.`
+        : `O Supabase Auth recusou o convite: ${providerMessage}`);
+    }
     if (!invited.user?.id) throw new Error("O Supabase não retornou o identificador do usuário convidado.");
 
     const { error: roleError } = await context.admin.from("user_roles").upsert({

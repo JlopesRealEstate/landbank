@@ -1,5 +1,12 @@
 # Histórico de versões — Land Bank Corp
 
+## 1.4.3 — 07/11/2026
+- Área do terreno, área construída, preço por m² e valor total aceitam decimais; vírgula brasileira (55,80; 16,5) e ponto decimal são normalizados corretamente.
+- Cálculo automático do valor total preserva centavos.
+- Falhas de envio de convite retornam diagnóstico do Supabase Auth/SMTP e não confirmam sucesso sem aceite do provedor.
+- Build e deploy pendentes de validação em produção.
+
+
 ## 1.4.2 — 06/11/2026
 - Elimina a dependência de `SUPABASE_SECRET_KEY_V2` para leitura de fotos e documentos: valida identidade e perfil com a sessão do usuário e consulta `media`/Storage usando o cliente Supabase autenticado.
 - A leitura permanece restrita às políticas RLS existentes: admin, member e reader; bucket `landbank-files` continua privado.

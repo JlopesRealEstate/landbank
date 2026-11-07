@@ -51,6 +51,7 @@ export async function updateSession(request: NextRequest) {
   const isDeniedPage = pathname === "/acesso-negado";
   const isAuthRoute = pathname.startsWith("/auth") || pathname === "/definir-senha";
   const isPublicPresentation = pathname.startsWith("/apresentacao/");
+  const isPublicListings = pathname === "/imoveis" || pathname.startsWith("/api/public/media/");
 
   let authorized = false;
   let userRole: string | null = null;
@@ -64,7 +65,7 @@ export async function updateSession(request: NextRequest) {
     authorized = !roleError && ["admin", "member", "reader"].includes(userRole ?? "");
   }
 
-  if (!user && !isLoginPage && !isAuthRoute && !isPublicPresentation && !isDeniedPage) {
+  if (!user && !isLoginPage && !isAuthRoute && !isPublicPresentation && !isPublicListings && !isDeniedPage) {
     if (pathname.startsWith("/api/")) {
       return Response.json({ ok: false, error: "Autenticação necessária." }, { status: 401, headers: { "Cache-Control": "private, no-store" } });
     }
@@ -88,11 +89,24 @@ export async function updateSession(request: NextRequest) {
     return denied;
   }
 
-  if (user && authorized && userRole !== "admin" && (pathname.startsWith("/acessos") || pathname.startsWith("/relatorios") || pathname.startsWith("/areas/nova"))) {
-    const denied = NextResponse.redirect(new URL("/acesso-negado", request.url));
-    copyCookies(response, denied);
-    denied.headers.set("Cache-Control", "private, no-store");
-    return denied;
+  if (user && authorized && userRole !== "admin") {
+    const guestAllowed =
+      pathname === "/" ||
+      (pathname.startsWith("/areas") && !pathname.startsWith("/areas/nova") && !/\\/editar(?:\\/|$)/.test(pathname)) ||
+      pathname.startsWith("/mapa") ||
+      pathname.startsWith("/indicadores") ||
+      pathname.startsWith("/api/areas") ||
+      pathname.startsWith("/api/media/") ||
+      pathname.startsWith("/api/ibge/") ||
+      pathname.startsWith("/api/map") ||
+      isPublicPresentation || isPublicListings || isAuthRoute || isLoginPage;
+    if (!guestAllowed) {
+      if (pathname.startsWith("/api/")) return Response.json({ ok: false, error: "Este módulo é exclusivo do administrador." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
+      const denied = NextResponse.redirect(new URL("/acesso-negado", request.url));
+      copyCookies(response, denied);
+      denied.headers.set("Cache-Control", "private, no-store");
+      return denied;
+    }
   }
 
   if (user && authorized && userRole !== "admin" && ["POST", "PUT", "PATCH", "DELETE"].includes(request.method) && !isAuthRoute && !isPublicPresentation) {

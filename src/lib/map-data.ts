@@ -25,6 +25,7 @@ export function toMapArea(area: AreaRecord, city: City | undefined): MapArea {
     score: intel.score,
     grade: intel.grade,
     coverUrl: area.coverUrl,
+    photos: area.photos ?? [],
     photoCount: area.photoCount,
     documentCount: area.documentCount,
     geometry: area.geometry,

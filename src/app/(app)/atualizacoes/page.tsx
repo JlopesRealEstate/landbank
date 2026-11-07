@@ -3,6 +3,20 @@ import { CRM_VERSION, CRM_RELEASE_DATE } from "@/lib/version";
 
 const releases = [
   {
+    version: "1.5.0",
+    date: "07/11/2026",
+    title: "Portal público e apresentação comercial segura",
+    items: [
+      { icon: Layers, title: "Carrossel de fotos nos cards", detail: "As fotografias do imóvel podem ser navegadas diretamente em Áreas & Galpões, sem abrir a ficha." },
+      { icon: CheckCircle2, title: "Cálculo decimal corrigido", detail: "O botão de cálculo permanece visível com preço e área fracionados, incluindo vírgula decimal brasileira." },
+      { icon: ShieldCheck, title: "Acesso convidado restrito", detail: "O proxy do servidor limita usuários não administradores a Painel Executivo, Áreas & Galpões, Mapa Interativo e Indicadores IBGE." },
+      { icon: FileCheck, title: "PDF sem custos de terraplenagem", detail: "Retirados custos, volumes de corte/aterro e parecer de terraplenagem. O perfil altimétrico e as cotas permanecem como informação indicativa." },
+      { icon: Map, title: "Croqui idêntico na apresentação", detail: "A apresentação comercial reutiliza a composição da ficha PDF com KMZ, curvas de nível e restrições, sem mapa de calor." },
+      { icon: Building2, title: "Portal público de oportunidades", detail: "Novo site /imoveis com ativos disponíveis, filtros, KPIs, gráficos e imagens. Dados internos e documentos privados não são publicados." },
+    ],
+  },
+
+  {
     version: "1.4.3",
     date: "07/11/2026",
     title: "Convites e valores fracionados",

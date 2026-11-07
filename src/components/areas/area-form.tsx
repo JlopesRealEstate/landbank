@@ -264,9 +264,11 @@ export function AreaForm({
   });
 
   const city = cityList.find((item) => item.slug === form.citySlug);
+  const decimalPricePerM2 = parseDecimalInput(form.pricePerM2);
+  const decimalLandAreaM2 = parseDecimalInput(form.landAreaM2);
   const suggestedTotal =
-    Number(form.pricePerM2 || 0) > 0 && Number(form.landAreaM2 || 0) > 0
-      ? Math.round(Number(form.pricePerM2) * Number(form.landAreaM2) * 100) / 100
+    decimalPricePerM2 > 0 && decimalLandAreaM2 > 0
+      ? Math.round(decimalPricePerM2 * decimalLandAreaM2 * 100) / 100
       : 0;
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -776,7 +778,7 @@ export function AreaForm({
             <Eyebrow>Etapa 3</Eyebrow>
             <h2 className="mt-1 text-base font-semibold">Metragens, valores e zoneamento</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <Field help="metragens.landAreaM2" label="Área do terreno (m²) *" hint={Number(form.landAreaM2) > 0 ? areaLabel(Number(form.landAreaM2)) : undefined}>
+              <Field help="metragens.landAreaM2" label="Área do terreno (m²) *" hint={decimalLandAreaM2 > 0 ? areaLabel(decimalLandAreaM2) : undefined}>
                 <input
                   type="text"
                   inputMode="decimal"
@@ -786,7 +788,7 @@ export function AreaForm({
                   required
                 />
               </Field>
-              <Field help="metragens.builtAreaM2" label="Área construída (m²)" hint={Number(form.builtAreaM2) > 0 ? areaLabel(Number(form.builtAreaM2)) : "Opcional para terrenos"}>
+              <Field help="metragens.builtAreaM2" label="Área construída (m²)" hint={parseDecimalInput(form.builtAreaM2) > 0 ? areaLabel(parseDecimalInput(form.builtAreaM2)) : "Opcional para terrenos"}>
                 <input
                   type="text"
                   inputMode="decimal"

@@ -3,6 +3,16 @@ import { CRM_VERSION, CRM_RELEASE_DATE } from "@/lib/version";
 
 const releases = [
   {
+    version: "1.4.3",
+    date: "07/11/2026",
+    title: "Convites e valores fracionados",
+    items: [
+      { icon: FileUp, title: "Valores decimais no cadastro", detail: "Área do terreno, área construída, preço por m² e valor total aceitam casas decimais. Vírgula brasileira é convertida corretamente e o total preserva centavos." },
+      { icon: ShieldCheck, title: "Diagnóstico do envio de convites", detail: "Falhas do Supabase Auth/SMTP retornam a causa informada pelo provedor, sem indicar sucesso quando o e-mail não foi enviado." },
+    ],
+  },
+
+  {
     version: "1.4.2",
     date: "06/11/2026",
     title: "Fotos privadas sem chave administrativa",
